@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PAW Patrol Math Rescue — Lookout Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:ital,wght@0,400;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   ROOT DESIGN TOKENS — PAW Patrol Lookout palette
+   ═══════════════════════════════════════════════════════════ */
+:root{
+  --paw-red:    #E53935;
+  --paw-red2:   #B71C1C;
+  --paw-blue:   #1565C0;
+  --paw-blue2:  #0D47A1;
+  --paw-sky:    #29B6F6;
+  --paw-sky2:   #0288D1;
+  --paw-yellow: #FFD600;
+  --paw-gold:   #FF8F00;
+  --paw-green:  #43A047;
+  --paw-green2: #2E7D32;
+  --paw-grass:  #558B2F;
+  --paw-navy:   #0A1628;
+  --paw-sand:   #FFF3E0;
+  --paw-white:  #FFFFFF;
+  --paw-cloud:  rgba(255,255,255,0.94);
+  --lookout-gray:#B0BEC5;
+  --shadow:     0 8px 32px rgba(0,0,0,0.22);
+  --shadow2:    4px 4px 0 rgba(0,0,0,0.28);
+  --r-lg:24px; --r-md:14px; --r-pill:50px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+/* ═══════════════════════════════════════════════════════════
+   BODY — Adventure Bay panoramic sky gradient
+   ═══════════════════════════════════════════════════════════ */
+body{
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:0 10px 28px;
+  overflow-x:hidden;
+  position:relative;
+  background:linear-gradient(180deg,
+    #1a6fa8 0%, #3ba8e0 22%, #7dcfee 38%,
+    #a8e6cf 54%, #6ab04c 68%, #4a8e2e 80%, #2d5a1b 100%);
+  background-attachment:fixed;
+}
+
+/* ── background image slot ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:url('media/images/bg_adventure_bay.jpg') center/cover fixed;
+  opacity:0.55; z-index:0; pointer-events:none;
+}
+
+/* ── animated clouds ── */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 140px 55px at  8% 12%,rgba(255,255,255,0.72) 0%,transparent 70%),
+    radial-gradient(ellipse 100px 42px at 78% 7%, rgba(255,255,255,0.60) 0%,transparent 70%),
+    radial-gradient(ellipse  80px 34px at 45% 19%,rgba(255,255,255,0.50) 0%,transparent 70%),
+    radial-gradient(ellipse  60px 28px at 92% 22%,rgba(255,255,255,0.45) 0%,transparent 70%);
+  animation:cloudDrift 35s linear infinite;
+}
+@keyframes cloudDrift{from{background-position:0%}to{background-position:100%}}
+
+.wrap{position:relative;z-index:1;width:100%;display:flex;flex-direction:column;align-items:center;gap:0}
+
+/* ── INTRO VIDEO OVERLAY ── */
+.intro-overlay{
+  position:fixed;inset:0;z-index:9999;
+  background:#000;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.intro-overlay.hidden{display:none}
+.intro-overlay video{
+  width:100%;height:100%;
+  object-fit:contain;
+  max-height:100vh;
+}
+.skip-btn{
+  position:absolute;bottom:28px;right:28px;
+  background:rgba(255,255,255,0.2);
+  border:2px solid rgba(255,255,255,0.6);
+  color:#fff;font-family:'Fredoka One',cursive;
+  font-size:1rem;padding:8px 20px;
+  border-radius:50px;cursor:pointer;
+  transition:all .2s;z-index:10000;
+}
+.skip-btn:hover{background:rgba(255,255,255,0.4)}
+.intro-loading{
+  color:rgba(255,255,255,0.7);
+  font-family:'Fredoka One',cursive;
+  font-size:1rem;text-align:center;
+  padding:20px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOOKOUT TOWER HEADER
+   ═══════════════════════════════════════════════════════════ */
+.lookout-tower{
+  width:100%;max-width:700px;
+  background:linear-gradient(160deg,#C62828 0%,#E53935 45%,#C62828 100%);
+  border-radius:0 0 32px 32px;
+  padding:16px 18px 24px;
+  text-align:center;
+  box-shadow:var(--shadow),inset 0 -6px 0 rgba(0,0,0,0.22);
+  position:relative; overflow:hidden;
+  animation:towerDrop .7s cubic-bezier(.34,1.56,.64,1);
+  margin-bottom:12px;
+}
+@keyframes towerDrop{from{opacity:0;transform:translateY(-80px)}to{opacity:1;transform:translateY(0)}}
+
+/* zig-zag yellow stripe at bottom */
+.lookout-tower::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:10px;
+  background:repeating-linear-gradient(90deg,
+    var(--paw-yellow) 0,var(--paw-yellow) 24px,
+    var(--paw-red)    24px,var(--paw-red)  48px);
+}
+
+/* Lookout tower silhouette SVG decoration */
+.tower-silhouette{
+  display:flex;justify-content:center;margin-bottom:4px;
+  gap:0;
+}
+.tower-sil-svg{width:60px;opacity:0.22;filter:brightness(10)}
+
+/* PAW logo */
+.tower-logo{
+  width:88px;height:88px;object-fit:contain;
+  display:block;margin:0 auto 6px;
+  filter:drop-shadow(0 4px 10px rgba(0,0,0,0.35));
+  animation:logoPop 2.5s ease-in-out infinite;
+}
+@keyframes logoPop{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.06) rotate(2deg)}}
+.logo-fb{font-size:3.8rem;display:block;margin:0 auto 6px;animation:logoPop 2.5s ease-in-out infinite}
+
+.tower-title{
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.9rem,5.5vw,3rem);
+  color:var(--paw-yellow);
+  text-shadow:3px 3px 0 #7B0000,6px 6px 14px rgba(0,0,0,0.3);
+  line-height:1.05; letter-spacing:.5px;
+}
+.tower-sub{color:rgba(255,255,255,0.9);font-size:.88rem;font-weight:800;margin-top:3px}
+.tower-credit{font-size:.66rem;color:rgba(255,255,255,.48);margin-top:3px}
+
+/* top-right icon buttons */
+.tower-icons{position:absolute;top:12px;right:12px;display:flex;gap:7px}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,0.28);border:2px solid rgba(255,255,255,.4);
+  color:#fff;font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.icon-btn:hover{background:rgba(0,0,0,.5);transform:scale(1.12)}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN CARD — frosted cloud panel
+   ═══════════════════════════════════════════════════════════ */
+.card{
+  background:var(--paw-cloud);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow),0 0 0 4px rgba(255,255,255,.6);
+  width:100%;max-width:700px;
+  padding:24px 20px;
+  backdrop-filter:blur(10px);
+  border:3px solid rgba(255,255,255,.85);
+  animation:cardUp .5s .2s ease both;
+  min-height:200px;
+  position:relative;
+}
+@keyframes cardUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN SYSTEM
+   ═══════════════════════════════════════════════════════════ */
+.screen{display:none !important}
+.screen.active{display:block !important;animation:cardUp .35s ease both}
+
+/* ═══════════════════════════════════════════════════════════
+   BACK ARROW ROW (shown on every sub-screen)
+   ═══════════════════════════════════════════════════════════ */
+.back-row{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;
+}
+.back-btn{
+  background:var(--paw-red);color:#fff;
+  border:none;border-radius:var(--r-pill);
+  font-family:'Fredoka One',cursive;
+  font-size:.9rem; padding:7px 16px;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  box-shadow:var(--shadow2); transition:all .18s;
+}
+.back-btn:hover{transform:translateX(-3px);background:var(--paw-red2)}
+.back-btn .arrow{font-size:1.1rem}
+.back-title{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--paw-blue);flex:1}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTONS GLOBAL
+   ═══════════════════════════════════════════════════════════ */
+.btn{
+  font-family:'Fredoka One',cursive;font-size:1.05rem;
+  padding:11px 26px;border:none;border-radius:var(--r-pill);
+  cursor:pointer;transition:transform .14s,box-shadow .14s;
+  box-shadow:var(--shadow2);letter-spacing:.3px;
+  position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.28) 0%,transparent 55%);pointer-events:none}
+.btn:hover{transform:translateY(-3px);box-shadow:6px 6px 0 rgba(0,0,0,.22)}
+.btn:active{transform:translateY(0);box-shadow:var(--shadow2)}
+.btn-red   {background:var(--paw-red);   color:#fff}
+.btn-blue  {background:var(--paw-blue);  color:#fff}
+.btn-sky   {background:var(--paw-sky);   color:#fff}
+.btn-green {background:var(--paw-green); color:#fff}
+.btn-yellow{background:var(--paw-yellow);color:#333}
+.btn-gold  {background:var(--paw-gold);  color:#fff}
+.btn-outline{background:transparent;border:2.5px solid var(--paw-blue);color:var(--paw-blue);box-shadow:none}
+.btn-outline:hover{background:#E3F2FD}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 1: MAIN MENU
+   ═══════════════════════════════════════════════════════════ */
+.menu-band{
+  background:linear-gradient(135deg,var(--paw-sky) 0%,var(--paw-blue) 100%);
+  border-radius:var(--r-md);padding:16px;margin-bottom:16px;text-align:center;
+}
+.menu-band h2{font-family:'Fredoka One',cursive;color:#fff;font-size:1.4rem;
+  text-shadow:2px 2px 0 rgba(0,0,0,.18);margin-bottom:3px}
+.menu-band p{color:rgba(255,255,255,.9);font-size:.86rem;font-weight:700}
+
+/* Best score banner */
+.best-score-banner{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(135deg,var(--paw-gold),var(--paw-yellow));
+  border-radius:var(--r-md);padding:10px 16px;margin-bottom:14px;
+  box-shadow:var(--shadow2);
+}
+.best-score-banner .bs-label{font-family:'Fredoka One',cursive;font-size:.85rem;color:#5D4037}
+.best-score-banner .bs-val{font-family:'Fredoka One',cursive;font-size:1.6rem;color:var(--paw-red2)}
+.best-score-banner .bs-diff{font-size:.75rem;font-weight:800;color:#795548;background:rgba(255,255,255,.5);border-radius:20px;padding:2px 8px}
+
+/* difficulty */
+.diff-label{font-weight:800;color:#333;margin-bottom:7px;display:block;font-size:.88rem}
+.diff-row{display:flex;gap:8px;margin-bottom:14px}
+.diff-btn{
+  flex:1;font-family:'Fredoka One',cursive;font-size:.95rem;
+  padding:10px 6px;border-radius:var(--r-pill);border:3px solid transparent;
+  cursor:pointer;transition:all .2s;text-align:center;
+}
+.diff-btn[data-d=easy]  {background:#E8F5E9;color:var(--paw-green2);border-color:#A5D6A7}
+.diff-btn[data-d=medium]{background:#FFF8E1;color:#E65100;border-color:#FFE082}
+.diff-btn[data-d=hard]  {background:#FFEBEE;color:var(--paw-red);border-color:#EF9A9A}
+.diff-btn.sel{box-shadow:var(--shadow2);transform:scale(1.07)}
+.diff-btn[data-d=easy].sel  {background:var(--paw-green);color:#fff;border-color:var(--paw-green2)}
+.diff-btn[data-d=medium].sel{background:var(--paw-gold);color:#fff;border-color:#E65100}
+.diff-btn[data-d=hard].sel  {background:var(--paw-red);color:#fff;border-color:var(--paw-red2)}
+
+/* main menu nav grid */
+.menu-nav{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.menu-nav-btn{
+  background:var(--paw-white);border:2.5px solid #DDD;border-radius:var(--r-md);
+  padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;
+  box-shadow:var(--shadow2);
+}
+.menu-nav-btn:hover{transform:translateY(-3px);border-color:var(--paw-blue);background:#F0F8FF}
+.menu-nav-btn .nav-icon{font-size:1.8rem;display:block;margin-bottom:4px}
+.menu-nav-btn .nav-label{font-family:'Fredoka One',cursive;font-size:.88rem;color:var(--paw-blue)}
+
+.start-center{text-align:center}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 2: CHARACTERS INFO
+   ═══════════════════════════════════════════════════════════ */
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:10px}
+.char-card{
+  background:var(--paw-white);border-radius:var(--r-md);
+  padding:12px 8px;text-align:center;
+  box-shadow:var(--shadow2);border:2.5px solid #EEE;
+  transition:transform .2s;
+}
+.char-card:hover{transform:translateY(-4px) rotate(-1deg)}
+.char-card .cc-img{width:64px;height:64px;object-fit:contain;display:block;margin:0 auto 6px}
+.char-card .cc-emoji{font-size:2.4rem;display:block;margin:0 auto 6px}
+.char-card .cc-name{font-family:'Fredoka One',cursive;font-size:.95rem;margin-bottom:3px}
+.char-card .cc-role{font-size:.7rem;font-weight:800;color:#888;text-transform:uppercase;letter-spacing:.5px}
+.char-card .cc-desc{font-size:.72rem;color:#666;margin-top:4px;line-height:1.5}
+
+/* Color accent per pup */
+.char-card.chase   {border-color:#1976D2;background:#E3F2FD}
+.char-card.marshall{border-color:#E53935;background:#FFEBEE}
+.char-card.skye    {border-color:#E91E63;background:#FCE4EC}
+.char-card.rubble  {border-color:#FF8F00;background:#FFF8E1}
+.char-card.rocky   {border-color:#43A047;background:#E8F5E9}
+.char-card.zuma    {border-color:#00838F;background:#E0F7FA}
+.char-card.ryder   {border-color:#7B1FA2;background:#F3E5F5}
+.char-card.humdinger{border-color:#546E7A;background:#ECEFF1}
+.char-card.goodway {border-color:#8BC34A;background:#F9FBE7}
+.char-card.turbot  {border-color:#0277BD;background:#E1F5FE}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 3: ABOUT / GAME INFO
+   ═══════════════════════════════════════════════════════════ */
+.about-band{
+  background:linear-gradient(135deg,var(--paw-red) 0%,#C62828 100%);
+  border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;
+  text-align:center;
+}
+.about-band h2{font-family:'Fredoka One',cursive;color:var(--paw-yellow);font-size:1.3rem;
+  text-shadow:2px 2px 0 rgba(0,0,0,.2)}
+.about-band p{color:rgba(255,255,255,.88);font-size:.82rem;font-weight:700;margin-top:3px}
+
+.about-section{margin-bottom:14px}
+.about-section h3{font-family:'Fredoka One',cursive;color:var(--paw-blue);font-size:1rem;
+  margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.about-section p,.about-section li{font-size:.84rem;color:#555;line-height:1.7}
+.about-section ul{padding-left:18px}
+.about-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--paw-blue);color:#fff;
+  font-size:.72rem;font-weight:800;padding:4px 12px;
+  border-radius:var(--r-pill);margin:3px 2px;
+  box-shadow:var(--shadow2);
+}
+
+.creator-box{
+  background:linear-gradient(135deg,var(--paw-yellow),var(--paw-gold));
+  border-radius:var(--r-md);padding:12px 16px;
+  box-shadow:var(--shadow2); margin-bottom:10px;
+}
+.creator-box h3{font-family:'Fredoka One',cursive;color:var(--paw-red2);font-size:.95rem;margin-bottom:5px}
+.creator-box p{font-size:.8rem;color:#5D4037;line-height:1.65}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 4: PUP SELECTION
+   ═══════════════════════════════════════════════════════════ */
+.ryder-speech{
+  display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;
+  position:relative;
+}
+.ryder-img{
+  width:150px;height:150px;object-fit:contain;flex-shrink:0;
+  filter:drop-shadow(4px 6px 12px rgba(0,0,0,.25));
+  animation:ryderBob 2s ease-in-out infinite;
+  position:relative;z-index:2;
+  margin-bottom:-10px;
+}
+@keyframes ryderBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ryder-fb{font-size:6rem;flex-shrink:0;animation:ryderBob 2s ease-in-out infinite;margin-bottom:-10px;}
+
+/* speech bubble */
+.speech-bubble{
+  background:var(--paw-white);
+  border:3px solid var(--paw-blue);
+  border-radius:18px 18px 18px 4px;
+  padding:14px 17px;
+  font-size:.92rem;color:#333;line-height:1.65;
+  box-shadow:var(--shadow2);
+  position:relative;flex:1;
+  align-self:center;
+}
+.speech-bubble::before{
+  content:'';position:absolute;
+  top:50%;left:-17px;transform:translateY(-50%);
+  border:9px solid transparent;
+  border-right-color:var(--paw-blue);
+}
+.speech-bubble::after{
+  content:'';position:absolute;
+  top:50%;left:-11px;transform:translateY(-50%);
+  border:8px solid transparent;
+  border-right-color:var(--paw-white);
+  z-index:1;
+}
+.speech-bubble strong{color:var(--paw-blue)}
+.speech-bubble .mission-name{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  color:var(--paw-red);display:block;margin-bottom:3px;
+}
+
+/* Pup pick grid */
+.pup-pick-title{
+  font-family:'Fredoka One',cursive;font-size:1rem;
+  color:var(--paw-blue);margin-bottom:10px;text-align:center;
+}
+.pup-pick-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;
+}
+@media(min-width:480px){.pup-pick-grid{grid-template-columns:repeat(6,1fr)}}
+
+.pup-pick-card{
+  background:var(--paw-white);border-radius:var(--r-md);
+  border:3px solid #DDD;padding:8px 4px;text-align:center;
+  cursor:pointer;transition:all .2s;box-shadow:var(--shadow2);
+}
+.pup-pick-card:hover{transform:translateY(-4px) scale(1.04)}
+.pup-pick-card.chosen{border-color:var(--paw-yellow);background:#FFF8E1;
+  transform:translateY(-5px) scale(1.08);
+  box-shadow:0 0 0 3px var(--paw-gold),var(--shadow2)}
+.pup-pick-card img{width:52px;height:52px;object-fit:contain;display:block;margin:0 auto 3px}
+.pup-pick-card .pp-emoji{font-size:2rem;display:block;margin:0 auto 3px}
+.pup-pick-card .pp-name{font-family:'Fredoka One',cursive;font-size:.72rem;color:#444}
+
+.pick-action{text-align:center}
+.chosen-label{
+  font-size:.85rem;font-weight:800;color:var(--paw-green);
+  margin-bottom:10px;min-height:22px;
+  font-family:'Fredoka One',cursive;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 5: MISSION STORY (with video slot)
+   ═══════════════════════════════════════════════════════════ */
+.mvideo-wrap{
+  border-radius:var(--r-md);overflow:hidden;
+  margin-bottom:14px;background:var(--paw-navy);
+  display:none;box-shadow:var(--shadow2);
+}
+.mvideo-wrap.vis{display:block}
+.mvideo-wrap video{width:100%;display:block;max-height:200px;object-fit:cover}
+
+.mission-header-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.mission-pup-img{width:72px;height:72px;object-fit:contain;
+  filter:drop-shadow(2px 4px 5px rgba(0,0,0,.2));
+  animation:ryderBob 2.5s ease-in-out infinite}
+.mission-pup-emoji{font-size:3rem;animation:ryderBob 2.5s ease-in-out infinite}
+.mission-h-title{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--paw-blue);line-height:1.2}
+.mission-h-sub{font-size:.78rem;font-weight:800;color:#999;margin-top:2px}
+
+.story-panel{
+  background:linear-gradient(135deg,#FFFDE7,#FFF9C4);
+  border:3px solid var(--paw-yellow);border-radius:var(--r-md);
+  padding:13px 15px;font-size:.88rem;color:#444;line-height:1.65;
+  margin-bottom:16px;box-shadow:inset 0 2px 8px rgba(255,214,0,.12);
+}
+.story-panel::before{
+  content:'📋 MISSION BRIEF';display:block;
+  font-family:'Fredoka One',cursive;font-size:.7rem;
+  color:var(--paw-gold);letter-spacing:1.5px;margin-bottom:6px;
+}
+.story-panel strong{color:var(--paw-blue2)}
+.story-q-note{text-align:center;font-size:.82rem;font-weight:800;color:#999;margin-bottom:12px}
+.story-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 6: QUESTION / GAMEPLAY
+   ═══════════════════════════════════════════════════════════ */
+.hud{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.hud-score{
+  background:var(--paw-blue);color:#fff;
+  font-family:'Fredoka One',cursive;font-size:.98rem;
+  padding:6px 16px;border-radius:var(--r-pill);box-shadow:var(--shadow2);
+}
+.hud-lives{font-size:1.45rem;letter-spacing:3px}
+.hud-qnum{font-size:.8rem;font-weight:900;color:#777}
+
+/* paw progress track */
+.paw-track{display:flex;gap:6px;justify-content:center;margin-bottom:14px}
+.paw-dot{
+  width:30px;height:30px;border-radius:50%;
+  background:#DDD;display:flex;align-items:center;justify-content:center;
+  font-size:.88rem;transition:all .3s;box-shadow:var(--shadow2);
+}
+.paw-dot.cur{background:var(--paw-yellow);animation:dotPulse 1s infinite}
+.paw-dot.ok {background:var(--paw-green);color:#fff}
+.paw-dot.err{background:var(--paw-red);color:#fff}
+@keyframes dotPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+
+/* concept chip */
+.concept-chip{
+  display:inline-block;background:var(--paw-blue);color:#fff;
+  font-size:.72rem;font-weight:900;padding:3px 14px;border-radius:var(--r-pill);
+  margin-bottom:7px;letter-spacing:1px;text-transform:uppercase;box-shadow:var(--shadow2);
+}
+
+.q-context{font-size:.83rem;color:#999;font-style:italic;margin-bottom:5px}
+
+/* speech-bubble-style question */
+.q-bubble{
+  background:var(--paw-white);border:4px solid var(--paw-blue);
+  border-radius:var(--r-lg);padding:20px 18px;text-align:center;
+  font-family:'Fredoka One',cursive;
+  font-size:clamp(1.6rem,4.5vw,2.4rem);color:var(--paw-navy);
+  margin-bottom:16px;box-shadow:var(--shadow2);
+  position:relative;
+}
+.q-bubble::after{content:'';position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  border:9px solid transparent;border-top-color:var(--paw-blue)}
+.q-bubble::before{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  border:8px solid transparent;border-top-color:var(--paw-white);z-index:1}
+
+/* pup portrait near question */
+.q-pup-row{text-align:right;margin:-6px 0 3px}
+.q-pup-row img{width:48px;height:48px;object-fit:contain;
+  filter:drop-shadow(1px 2px 4px rgba(0,0,0,.15))}
+.q-pup-row .qp-emoji{font-size:1.9rem}
+
+/* answer */
+.ans-row{display:flex;gap:9px;margin:20px 0 11px}
+.ans-input{
+  flex:1;font-family:'Fredoka One',cursive;font-size:1.4rem;
+  padding:11px 14px;border:3.5px solid #B3D4FF;border-radius:var(--r-md);
+  outline:none;color:var(--paw-navy);text-align:center;background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,.06);
+}
+.ans-input:focus{border-color:var(--paw-blue);box-shadow:0 0 0 3px rgba(21,101,192,.15)}
+.ans-input.ok {border-color:var(--paw-green); background:#F1F8E9}
+.ans-input.err{border-color:var(--paw-red);   background:#FFF0F0;animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+/* feedback */
+.feedback{
+  border-radius:var(--r-md);padding:11px 13px;
+  font-family:'Fredoka One',cursive;font-size:.98rem;text-align:center;
+  min-height:46px;display:flex;align-items:center;justify-content:center;gap:7px;
+  margin-bottom:11px;transition:all .3s;
+}
+.feedback.hide{visibility:hidden}
+.feedback.ok  {background:#E8F5E9;color:var(--paw-green2);border:2px solid #A5D6A7}
+.feedback.err {background:#FFEBEE;color:var(--paw-red2);  border:2px solid #EF9A9A}
+.feedback.info{background:#FFF8E1;color:#E65100;           border:2px solid #FFE082}
+
+/* hint */
+.hint-box{
+  background:linear-gradient(135deg,#FFFDE7,#FFF9C4);
+  border:2px dashed var(--paw-yellow);border-radius:var(--r-md);
+  padding:9px 13px;font-size:.84rem;color:#555;margin-bottom:11px;display:none;
+}
+.hint-box.on{display:block;animation:cardUp .3s ease}
+
+/* correct star pop */
+.star-pop{display:none;text-align:center;margin-bottom:8px;animation:sPop .5s ease}
+.star-pop.on{display:block}
+@keyframes sPop{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.3) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0deg);opacity:1}}
+.star-pop img{width:56px;height:56px;object-fit:contain}
+.star-pop .sp-emoji{font-size:2.4rem}
+
+.next-center{text-align:center}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 7: MISSION RESULT
+   ═══════════════════════════════════════════════════════════ */
+.res-icon{font-size:4rem;text-align:center;margin-bottom:9px}
+.res-title{font-family:'Fredoka One',cursive;font-size:1.8rem;text-align:center;margin-bottom:5px}
+.res-title.win{color:var(--paw-green2)}
+.res-title.lose{color:var(--paw-red)}
+.res-sub{text-align:center;color:#666;font-size:.9rem;margin-bottom:16px;line-height:1.6}
+.stat-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.stat-box{
+  text-align:center;background:var(--paw-white);border-radius:var(--r-md);
+  padding:11px 18px;min-width:88px;
+  box-shadow:var(--shadow2);border:2px solid #EEE;
+}
+.stat-val{font-family:'Fredoka One',cursive;font-size:1.85rem;color:var(--paw-blue)}
+.stat-lbl{font-size:.68rem;font-weight:800;color:#AAA;text-transform:uppercase;letter-spacing:.5px}
+.res-btns{display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+
+/* new best indicator */
+.new-best{
+  background:linear-gradient(135deg,var(--paw-yellow),var(--paw-gold));
+  border-radius:var(--r-md);padding:10px;text-align:center;
+  font-family:'Fredoka One',cursive;font-size:1rem;color:var(--paw-red2);
+  margin-bottom:14px;box-shadow:var(--shadow2);display:none;
+}
+.new-best.on{display:block;animation:sPop .5s ease}
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 8: GAME OVER
+   ═══════════════════════════════════════════════════════════ */
+/* reuses res-* classes */
+
+/* ═══════════════════════════════════════════════════════════
+   SCREEN 9: VICTORY
+   ═══════════════════════════════════════════════════════════ */
+.victory-stars{font-size:2rem;text-align:center;letter-spacing:6px;margin:6px 0}
+.victory-band{
+  background:linear-gradient(135deg,var(--paw-yellow) 0%,var(--paw-gold) 100%);
+  border-radius:var(--r-md);padding:13px;margin-bottom:14px;box-shadow:var(--shadow2);
+}
+.victory-band h3{font-family:'Fredoka One',cursive;font-size:.95rem;color:var(--paw-red2);margin-bottom:8px}
+.vrow{display:flex;justify-content:space-between;font-size:.87rem;font-weight:800;
+  color:#4E342E;padding:4px 0;border-bottom:1px dashed rgba(0,0,0,.12)}
+.vrow:last-child{border-bottom:none}
+
+/* ═══════════════════════════════════════════════════════════
+   HOW-TO-PLAY MODAL
+   ═══════════════════════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;background:rgba(0,20,60,.62);
+  display:none;align-items:center;justify-content:center;
+  z-index:999;padding:14px;backdrop-filter:blur(4px);
+}
+.overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:var(--r-lg);padding:24px 20px;
+  max-width:480px;width:100%;max-height:88vh;overflow-y:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,.3);
+  border:4px solid var(--paw-sky);
+  animation:sPop .3s cubic-bezier(.34,1.56,.64,1);
+}
+.modal h2{font-family:'Fredoka One',cursive;color:var(--paw-blue);font-size:1.35rem;margin-bottom:13px}
+.how-row{display:flex;gap:9px;align-items:flex-start;margin-bottom:9px;font-size:.86rem;color:#444}
+.how-ico{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.ref-box{background:#E3F2FD;border-radius:12px;padding:12px;margin-top:11px;font-size:.78rem}
+.ref-box h4{color:var(--paw-blue);font-family:'Fredoka One',cursive;margin-bottom:6px}
+.ref-box ul{padding-left:16px;line-height:2}
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIO (hidden)
+   ═══════════════════════════════════════════════════════════ */
+audio{display:none}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+.footer{margin-top:14px;text-align:center;color:rgba(255,255,255,.48);
+  font-size:.67rem;line-height:2;text-shadow:1px 1px 4px rgba(0,0,0,.3)}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+.tc{text-align:center} .mt8{margin-top:8px} .mt14{margin-top:14px} .mb10{margin-bottom:10px}
+.flex-center{display:flex;justify-content:center;flex-wrap:wrap;gap:9px}
+@media(max-width:460px){
+  .pup-pick-grid{grid-template-columns:repeat(3,1fr)}
+  .char-grid{grid-template-columns:repeat(2,1fr)}
+  .menu-nav{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ AUDIO ════════════════════════════════ -->
+<audio id="bgMusic"    src="media/music/theme_song.mp3"       loop></audio>
+<audio id="sndOk"      src="media/music/correct_answer.mp3"></audio>
+<audio id="sndErr"     src="media/music/wrong_answer.mp3"></audio>
+<audio id="sndWin"     src="media/music/mission_complete.mp3"></audio>
+<audio id="sndOver"    src="media/music/game_over.mp3"></audio>
+
+<div class="wrap">
+
+<!-- ════════════════════════════════ INTRO VIDEO OVERLAY ════════════════════════════════ -->
+<!-- This fullscreen overlay plays BEFORE the game. Add media/videos/intro_video.mp4      -->
+<div class="intro-overlay" id="introOverlay">
+  <!-- Intro video plays WITH sound — browser may block until user clicks -->
+  <video id="introVideo" autoplay playsinline
+         style="width:100%;height:100%;object-fit:contain">
+    <source src="media/videos/intro_video.mp4" type="video/mp4"/>
+  </video>
+  <!-- Sound unlock button shown if browser blocks autoplay -->
+  <button class="skip-btn" id="soundUnlockBtn" onclick="unlockIntroSound()"
+          style="bottom:70px;background:rgba(255,150,0,0.85);display:none">
+    🔊 Tap to Enable Sound
+  </button>
+  <button class="skip-btn" onclick="skipIntro()">⏭ Skip Intro</button>
+  <div class="intro-loading" id="introLoading">🐾 Loading PAW Patrol Math Rescue...</div>
+</div>
+
+<!-- ════════════════════════════════ LOOKOUT TOWER HEADER ════════════════════════════════ -->
+<div class="lookout-tower">
+  <div class="tower-icons">
+    <button class="icon-btn" id="musicBtn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
+    <button class="icon-btn" onclick="openHelp()" title="How to Play">❓</button>
+  </div>
+
+  <!-- Lookout tower mini SVG silhouette -->
+  <div class="tower-silhouette">
+    <svg class="tower-sil-svg" viewBox="0 0 60 80" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <rect x="22" y="0"  width="16" height="10" rx="2"/>
+      <rect x="18" y="10" width="24" height="8"  rx="2"/>
+      <rect x="20" y="18" width="20" height="30" rx="2"/>
+      <rect x="15" y="48" width="30" height="5"  rx="2"/>
+      <rect x="25" y="53" width="10" height="27" rx="2"/>
+    </svg>
+  </div>
+
+  <!-- Logo: place media/images/logo.png — emoji fallback -->
+  <img class="tower-logo" id="towerLogo" src="media/images/logo.png" alt="PAW Patrol"
+       onerror="this.style.display='none';document.getElementById('logoFb').style.display='block'"/>
+  <span class="logo-fb" id="logoFb" style="display:none">🐾</span>
+
+  <div class="tower-title">PAW Patrol Math Rescue!</div>
+  <div class="tower-sub">Save Adventure Bay with the power of INTEGERS!</div>
+  <div class="tower-credit">PAW Patrol created by Keith Chapman &nbsp;·&nbsp; </div>
+</div>
+
+
+<!-- ════════════════════════════════ MAIN CARD ════════════════════════════════ -->
+<div class="card" id="mainCard">
+
+  <!-- ─────────────────────────── SCREEN: MENU ─────────────────────────── -->
+  <div class="screen active" id="scrMenu">
+
+    <div class="menu-band">
+      <h2>🚨 Adventure Bay Needs You!</h2>
+      <p>Ryder is calling all pups! No job is too big, no number too small!</p>
+    </div>
+
+    <!-- Best Score -->
+    <div class="best-score-banner" id="bestScoreBanner">
+      <span style="font-size:1.6rem">🏆</span>
+      <div>
+        <div class="bs-label">ALL-TIME BEST SCORE</div>
+        <div class="bs-val" id="bestScoreVal">0</div>
+      </div>
+      <span class="bs-diff" id="bestScoreDiff">—</span>
+    </div>
+
+    <!-- Difficulty -->
+    <label class="diff-label">📊 Choose Difficulty:</label>
+    <div class="diff-row">
+      <button class="diff-btn sel" data-d="easy"   onclick="pickDiff('easy')"  >🟢 Easy</button>
+      <button class="diff-btn"     data-d="medium" onclick="pickDiff('medium')">🟡 Medium</button>
+      <button class="diff-btn"     data-d="hard"   onclick="pickDiff('hard')"  >🔴 Hard</button>
+    </div>
+
+    <!-- Nav grid -->
+    <div class="menu-nav">
+      <div class="menu-nav-btn" onclick="goScreen('scrCharacters')">
+        <span class="nav-icon">🐕</span>
+        <span class="nav-label">Characters</span>
+      </div>
+      <div class="menu-nav-btn" onclick="goScreen('scrAbout')">
+        <span class="nav-icon">📖</span>
+        <span class="nav-label">About Game</span>
+      </div>
+      <div class="menu-nav-btn" onclick="openHelp()">
+        <span class="nav-icon">❓</span>
+        <span class="nav-label">How to Play</span>
+      </div>
+      <div class="menu-nav-btn" onclick="showBestScores()">
+        <span class="nav-icon">🏅</span>
+        <span class="nav-label">Best Scores</span>
+      </div>
+    </div>
+
+    <div class="start-center">
+      <button class="btn btn-red" style="font-size:1.2rem;padding:13px 42px" onclick="startGame()">
+        🚨 Start Rescue!
+      </button>
+    </div>
+  </div><!-- /scrMenu -->
+
+
+  <!-- ─────────────────────────── SCREEN: CHARACTERS ─────────────────────────── -->
+  <div class="screen" id="scrCharacters">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Back</button>
+      <span class="back-title">Meet the Characters</span>
+    </div>
+
+    <div class="char-grid" id="charGrid">
+      <!-- Populated by JS -->
+    </div>
+  </div><!-- /scrCharacters -->
+
+
+  <!-- ─────────────────────────── SCREEN: ABOUT ─────────────────────────── -->
+  <div class="screen" id="scrAbout">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Back</button>
+      <span class="back-title">About This Game</span>
+    </div>
+
+    <div class="about-band">
+      <h2>🐾 PAW Patrol Math Rescue!</h2>
+      <p>An Educational Integer Math Game </p>
+    </div>
+
+    <div class="creator-box">
+      <h3>Original Series Creator</h3>
+      <p>
+        <strong>PAW Patrol</strong> was created by <strong>Keith Chapman</strong>, a British television
+        writer and producer. PAW Patrol first aired in 2013 on Nickelodeon and has become one of the most
+        beloved and popular animated series worldwide.
+      </p>
+    </div>
+
+    <div class="about-section">
+      <h3>🎓 Educational Goals</h3>
+      <p>This game teaches <strong>integer operations</strong> through rescue missions:</p>
+      <div style="margin-top:7px">
+        <span class="about-pill">➕ Addition</span>
+        <span class="about-pill">➖ Subtraction</span>
+        <span class="about-pill">✖ Multiplication</span>
+        <span class="about-pill">➗ Division</span>
+        <span class="about-pill">🔢 Negative Numbers</span>
+        <span class="about-pill">📊 Multi-step Problems</span>
+      </div>
+    </div>
+
+    <div class="about-section">
+      <h3>🎮 Game Features</h3>
+      <ul>
+        <li>6 Rescue Missions — one for each original pup</li>
+        <li>3 Difficulty Levels: Easy, Medium, Hard</li>
+        <li>Choose your pup leader for each mission</li>
+        <li>Ryder announces every mission</li>
+        <li>3 Lives per game — lose all = Game Over</li>
+        <li>Hints appear after wrong answers</li>
+    </div>
+
+    <div class="about-section">
+      <h3>⚖️ Disclaimer</h3>
+      <p>PAW Patrol™ and all character names are trademarks of Spin Master Ltd.
+         This game is created for <strong>educational and classroom use only</strong>.
+         Not affiliated with Nickelodeon or Spin Master.</p>
+    </div>
+  </div><!-- /scrAbout -->
+
+
+  <!-- ─────────────────────────── SCREEN: PUP SELECTION ─────────────────────────── -->
+  <div class="screen" id="scrPupSelect">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Back to Menu</button>
+      <span class="back-title" id="pickScreenTitle">Choose Your Pup</span>
+    </div>
+
+    <!-- Ryder speech bubble -->
+    <div class="ryder-speech">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0">
+        <img class="ryder-img" id="ryderImg" src="media/images/ryder.png" alt="Ryder"
+             onerror="this.style.display='none';document.getElementById('ryderFb').style.display='block'"/>
+        <span class="ryder-fb" id="ryderFb" style="display:none">🧒</span>
+        <span style="font-family:Fredoka One,cursive;font-size:.8rem;color:var(--paw-blue);
+                      background:var(--paw-yellow);border-radius:20px;padding:2px 12px;
+                      margin-top:-6px;box-shadow:2px 2px 0 rgba(0,0,0,.15)">Ryder</span>
+      </div>
+      <div class="speech-bubble">
+        <span class="mission-name" id="riderMissionName">Mission 1</span>
+        <span id="riderSpeech">Adventure Bay needs our help! Choose a pup to lead this rescue mission!</span>
+      </div>
+    </div>
+
+    <p class="pup-pick-title">🐾 Who will lead this mission?</p>
+    <div class="pup-pick-grid" id="pupPickGrid">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="chosen-label" id="chosenLabel">— No pup selected yet —</div>
+
+    <div class="pick-action">
+      <button class="btn btn-red" id="confirmPupBtn" onclick="confirmPup()" disabled
+              style="opacity:.5;cursor:not-allowed">
+        🐾 Let's Go!
+      </button>
+    </div>
+  </div><!-- /scrPupSelect -->
+
+
+  <!-- ─────────────────────────── SCREEN: MISSION STORY ─────────────────────────── -->
+  <div class="screen" id="scrMission">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Abandon Mission</button>
+      <span class="back-title" id="missionBackTitle">Mission 1</span>
+    </div>
+
+    <!-- mission video slot -->
+    <div class="mvideo-wrap" id="mVideoWrap">
+      <video id="mVideo" autoplay muted playsinline controls>
+        <source id="mVideoSrc" src="" type="video/mp4"/>
+      </video>
+    </div>
+
+    <div class="mission-header-row">
+      <img class="mission-pup-img" id="mPupImg" src="" alt=""
+           onerror="this.style.display='none';document.getElementById('mPupEmoji').style.display='block'"/>
+      <span class="mission-pup-emoji" id="mPupEmoji" style="display:none">🐾</span>
+      <div>
+        <div class="mission-h-title" id="mTitle">Mission Title</div>
+        <div class="mission-h-sub"   id="mSub">Led by: …</div>
+      </div>
+    </div>
+
+    <div class="story-panel" id="mStory">Story…</div>
+
+    <p class="story-q-note">Solve <strong id="mQCount">5</strong> integer problems to save the day!</p>
+
+    <div class="story-actions">
+      <button class="btn btn-blue"    onclick="beginMission()">🐾 Begin Mission!</button>
+      <button class="btn btn-outline" onclick="stopMissionSounds();goScreen('scrPupSelect')">◀ Change Pup</button>
+    </div>
+  </div><!-- /scrMission -->
+
+
+  <!-- ─────────────────────────── SCREEN: QUESTION ─────────────────────────── -->
+  <div class="screen" id="scrQuestion">
+    <div class="back-row">
+      <button class="back-btn" onclick="quitToMenu()"><span class="arrow">◀</span> Quit Mission</button>
+      <span class="back-title" id="qScreenTitle">Mission 1</span>
+    </div>
+
+    <div class="hud">
+      <div class="hud-score">⭐ <span id="scoreDisp">0</span></div>
+      <div class="hud-lives" id="livesDisp">❤️❤️❤️</div>
+      <div class="hud-qnum">Q<span id="qNum">1</span>/<span id="qTot">5</span></div>
+    </div>
+
+    <div class="paw-track" id="pawTrack"></div>
+
+    <span class="concept-chip" id="conceptChip">ADDITION</span>
+    <p class="q-context" id="qContext">Context…</p>
+
+    <div class="q-pup-row">
+      <img id="qPupImg" src="" alt=""
+           onerror="this.style.display='none';document.getElementById('qPupEmoji').style.display='inline'"/>
+      <span class="qp-emoji" id="qPupEmoji" style="display:none">🐾</span>
+    </div>
+
+    <div class="q-bubble" id="qText">(-3) + 5 = ?</div>
+
+    <div class="star-pop" id="starPop">
+      <img src="media/images/correct_star.png" alt="★"
+           onerror="this.outerHTML='<span class=sp-emoji>⭐</span>'"/>
+    </div>
+
+    <div class="hint-box" id="hintBox">💡 Hint: …</div>
+
+    <div class="ans-row">
+      <input type="number" class="ans-input" id="ansInput"
+             placeholder="Your answer…"
+             onkeydown="if(event.key==='Enter')checkAnswer()"/>
+      <button class="btn btn-blue" onclick="checkAnswer()">✔ Check</button>
+    </div>
+
+    <div class="feedback hide" id="feedback">—</div>
+
+    <div class="next-center" id="nextWrap" style="display:none">
+      <button class="btn btn-green" onclick="nextQ()">➡ Next Question</button>
+    </div>
+  </div><!-- /scrQuestion -->
+
+
+  <!-- ─────────────────────────── SCREEN: MISSION RESULT ─────────────────────────── -->
+  <div class="screen" id="scrResult">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Main Menu</button>
+      <span class="back-title">Mission Report</span>
+    </div>
+    <div class="res-icon"  id="resIcon">🎉</div>
+    <div class="res-title" id="resTitle">Mission Complete!</div>
+    <div class="res-sub"   id="resSub">Great job!</div>
+    <div class="new-best"  id="newBestBanner">🏆 NEW BEST SCORE! Amazing!</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-val" id="resCorr">0</div><div class="stat-lbl">Correct</div></div>
+      <div class="stat-box"><div class="stat-val" id="resScore">0</div><div class="stat-lbl">Points</div></div>
+      <div class="stat-box"><div class="stat-val" id="resLives">3</div><div class="stat-lbl">Lives Left</div></div>
+    </div>
+    <div class="res-btns" id="resBtns"></div>
+  </div><!-- /scrResult -->
+
+
+  <!-- ─────────────────────────── SCREEN: GAME OVER ─────────────────────────── -->
+  <div class="screen" id="scrGameOver">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Main Menu</button>
+      <span class="back-title">Game Over</span>
+    </div>
+    <div class="res-icon">💔</div>
+    <div class="res-title lose">Oh No! Game Over!</div>
+    <div class="res-sub">
+      Mayor Humdinger is doing his villain laugh…<br>
+      But you can come back stronger! Don't give up!
+    </div>
+    <div class="tc mb10">
+      <img src="media/images/humdinger.png" alt="Mayor Humdinger"
+           style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(2px 4px 6px rgba(0,0,0,.2))"
+           onerror="this.outerHTML='<span style=font-size:3rem>😈</span>'"/>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-val" id="goScore">0</div><div class="stat-lbl">Final Score</div></div>
+    </div>
+    <div class="res-btns" style="justify-content:center">
+      <button class="btn btn-yellow" onclick="goScreen('scrMenu')">🏠 Main Menu</button>
+      <button class="btn btn-red"    onclick="restartGame()">🔄 Try Again</button>
+    </div>
+  </div><!-- /scrGameOver -->
+
+
+  <!-- ─────────────────────────── SCREEN: VICTORY ─────────────────────────── -->
+  <div class="screen" id="scrVictory">
+    <div class="back-row">
+      <button class="back-btn" onclick="goScreen('scrMenu')"><span class="arrow">◀</span> Main Menu</button>
+      <span class="back-title">VICTORY!</span>
+    </div>
+    <div class="victory-stars">🌟⭐🌟⭐🌟</div>
+    <div class="res-title win" style="font-size:1.7rem">Adventure Bay is Saved!</div>
+    <div class="res-sub" style="margin-bottom:12px">
+      No job is too big, no pup is too small!<br>
+      You completed ALL 6 rescue missions. Ryder is incredibly proud!
+    </div>
+    <div class="tc mb10">
+      <img src="media/images/ryder.png" alt="Ryder"
+           style="width:95px;height:95px;object-fit:contain;filter:drop-shadow(2px 4px 8px rgba(0,0,0,.2));animation:ryderBob 2s ease-in-out infinite"
+           onerror="this.outerHTML='<span style=font-size:3.5rem;animation:ryderBob 2s ease-in-out infinite>🧒</span>'"/>
+    </div>
+    <div class="new-best" id="victoryNewBest">🏆 NEW ALL-TIME BEST SCORE!</div>
+    <div class="victory-band">
+      <h3>🏆 Final Score Report</h3>
+      <div class="vrow"><span>Total Score</span>   <strong id="vScore">0</strong></div>
+      <div class="vrow"><span>Difficulty</span>    <span   id="vDiff">Easy</span></div>
+      <div class="vrow"><span>Missions Done</span> <span   id="vMissions">6 / 6</span></div>
+      <div class="vrow"><span>Pups Used</span>     <span   id="vPups">—</span></div>
+    </div>
+    <div class="res-btns" style="justify-content:center">
+      <button class="btn btn-yellow" onclick="goScreen('scrMenu')">🏠 Main Menu</button>
+      <button class="btn btn-red"    onclick="restartGame()">💪 Play Again!</button>
+    </div>
+    <div class="victory-stars mt8">🎊🐾🎊🐾🎊</div>
+  </div><!-- /scrVictory -->
+
+</div><!-- /card -->
+
+
+<!-- ═══════════════════════════════ HOW TO PLAY MODAL ═══════════════════════════════ -->
+<div class="overlay" id="helpOverlay" onclick="maybeCloseHelp(event)">
+  <div class="modal">
+    <h2>📖 How to Play</h2>
+    <div class="how-row"><span class="how-ico">1️⃣</span><span>Choose a <strong>difficulty</strong> on the main menu and press <strong>Start Rescue!</strong></span></div>
+    <div class="how-row"><span class="how-ico">2️⃣</span><span><strong>Ryder</strong> will announce the mission. Pick a <strong>pup</strong> to lead it!</span></div>
+    <div class="how-row"><span class="how-ico">3️⃣</span><span>Read the <strong>mission story</strong> then press <strong>Begin Mission!</strong></span></div>
+    <div class="how-row"><span class="how-ico">4️⃣</span><span>Solve each <strong>integer problem</strong>. Type your answer and press <strong>Check</strong> or <strong>Enter</strong>.</span></div>
+    <div class="how-row"><span class="how-ico">✅</span><span><strong>Correct</strong> → earn points, move forward!</span></div>
+    <div class="how-row"><span class="how-ico">❌</span><span><strong>Wrong</strong> → lose a ❤️ life. A hint appears to help you.</span></div>
+    <div class="how-row"><span class="how-ico">❤️</span><span>You have <strong>3 lives</strong>. Lose them all = Game Over!</span></div>
+    <div class="how-row"><span class="how-ico">◀</span><span>Use the <strong>back arrow</strong> anytime to return to the main menu.</span></div>
+    <div class="how-row"><span class="how-ico">🏁</span><span>Complete all <strong>6 missions</strong> to save Adventure Bay!</span></div>
+    <div class="ref-box">
+      <h4>🔢 Integer Rules Quick Reference</h4>
+      <ul>
+        <li>(+) + (+) = positive: 3 + 4 = 7</li>
+        <li>(−) + (−) = negative: −3 + (−4) = −7</li>
+        <li>(+) − (−) = add: 5 − (−2) = 7</li>
+        <li>(−) × (−) = positive: −3 × −2 = 6</li>
+        <li>(+) × (−) = negative: 4 × −3 = −12</li>
+        <li>Same signs ÷ = positive; Different signs ÷ = negative</li>
+      </ul>
+    </div>
+    <div class="tc mt14">
+      <button class="btn btn-red" onclick="closeHelp()">Got it! Let's rescue! 🐾</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ BEST SCORES MODAL ═══════════════════════════════ -->
+<div class="overlay" id="scoresOverlay" onclick="maybeCloseScores(event)">
+  <div class="modal">
+    <h2>🏆 Best Scores</h2>
+    <div id="scoresList"></div>
+    <div class="tc mt14">
+      <button class="btn btn-blue" onclick="closeScores()">Close</button>
+      <button class="btn btn-outline mt8" onclick="clearBestScores()" style="margin-left:8px">🗑 Clear Scores</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+<div class="footer">
+  PAW Patrol™ created by Keith Chapman &nbsp;|&nbsp; Characters © Spin Master Ltd.<br>
+  Educational Math Game — For Classroom &amp; Personal Use Only
+</div>
+
+</div><!-- /wrap -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — COMPLETE GAME LOGIC
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ════════════════════════════════════════════════
+   DATA: CHARACTERS
+   ════════════════════════════════════════════════ */
+const CHARACTERS = [
+  {
+    id:'ryder',    name:'Ryder',       emoji:'🧒',    img:'media/images/ryder.png',
+    css:'ryder',   role:'PAW Patrol Leader',
+    desc:'A 10-year-old tech-savvy boy who founded PAW Patrol. He leads the pups on every rescue mission from the Lookout Tower.'
+  },
+  {
+    id:'chase',    name:'Chase',       emoji:'🐕',    img:'media/images/chase.png',
+    css:'chase',   role:'Police & Traffic Pup',
+    desc:'A German Shepherd who serves as the team\'s police dog. Brave, responsible, and always first on the scene.'
+  },
+  {
+    id:'marshall', name:'Marshall',    emoji:'🚒',    img:'media/images/marshall.png',
+    css:'marshall',role:'Fire & Medical Pup',
+    desc:'A clumsy but caring Dalmatian who is the team firefighter and medic. Always ready with his fire truck and medical kit.'
+  },
+  {
+    id:'skye',     name:'Skye',        emoji:'🚁',    img:'media/images/skye.png',
+    css:'skye',    role:'Pilot Pup',
+    desc:'A brave Cockapoo who pilots the team\'s helicopter. She loves flying high over Adventure Bay on aerial surveys.'
+  },
+  {
+    id:'rubble',   name:'Rubble',      emoji:'🏗️',   img:'media/images/rubble.png',
+    css:'rubble',  role:'Construction Pup',
+    desc:'A tough English Bulldog who operates the team\'s bulldozer. Loves building things and munching on dog treats.'
+  },
+  {
+    id:'rocky',    name:'Rocky',       emoji:'♻️',   img:'media/images/rocky.png',
+    css:'rocky',   role:'Eco & Recycling Pup',
+    desc:'A resourceful mixed-breed pup focused on recycling and fixing things. His motto: "Don\'t lose it, reuse it!"'
+  },
+  {
+    id:'zuma',     name:'Zuma',        emoji:'🌊',    img:'media/images/zuma.png',
+    css:'zuma',    role:'Water Rescue Pup',
+    desc:'A fun-loving Chocolate Labrador who specializes in water rescue with his hovercraft and underwater gear.'
+  },
+  {
+    id:'humdinger',name:'Mayor Humdinger', emoji:'😈', img:'media/images/humdinger.png',
+    css:'humdinger',role:'Villain of Foggy Bottom',
+    desc:'The bumbling villain who often causes trouble with his Kitten Catastrophe Crew. Mayor of Foggy Bottom and rival to Mayor Goodway.'
+  },
+  {
+    id:'goodway',  name:'Mayor Goodway', emoji:'👒',  img:'media/images/goodway.png',
+    css:'goodway', role:'Mayor of Adventure Bay',
+    desc:'The kind mayor of Adventure Bay who frequently calls PAW Patrol for help — usually because of her pet chicken Chickaletta!'
+  },
+  {
+    id:'turbot',   name:"Cap'n Turbot",  emoji:'⚓',  img:'media/images/turbot.png',
+    css:'turbot',  role:'Marine Biologist',
+    desc:'A friendly marine biologist and lighthouse keeper who frequently needs the pups\' help out on the water.'
+  },
+];
+
+/* ════════════════════════════════════════════════
+   DATA: MISSIONS
+   ════════════════════════════════════════════════ */
+const MISSIONS = [
+  {
+    id:0,
+    title:'Mission 1: Chase\'s Traffic Trouble',
+    emoji:'🚔',
+    defaultPup:'chase',
+    video:'media/videos/mission1_video.mp4',
+    ryderSpeech:'There\'s trouble on Adventure Bay Bridge! Mayor Humdinger\'s kittens knocked over all the traffic cones and traffic is jammed. We need to count cones and fix the problem fast!',
+    story:`Mayor Humdinger's kittens have knocked over ALL the traffic cones on Adventure Bay Bridge!
+           <strong>The chosen pup</strong> needs to calculate exactly how many cones are missing
+           on each side using integer math. Help tally the totals so traffic can flow safely again!`,
+    questions:5,
+  },
+  {
+    id:1,
+    title:'Mission 2: Medical Emergency at the Lighthouse',
+    emoji:'🚒',
+    defaultPup:'marshall',
+    video:'media/videos/mission2_video.mp4',
+    ryderSpeech:'Cap\'n Turbot\'s lighthouse generator is going haywire — losing and gaining power! The medical supplies need to stay cold. We need to track every temperature change with precision!',
+    story:`Cap'n Turbot's lighthouse generator keeps malfunctioning — the temperature is jumping
+           up and down! <strong>The chosen pup</strong> must track temperature changes in degrees
+           to keep medical supplies cold. Solve the integer temperature problems before everything spoils!`,
+    questions:5,
+  },
+  {
+    id:2,
+    title:'Mission 3: Skye\'s Sky Survey Crisis',
+    emoji:'🚁',
+    defaultPup:'skye',
+    video:'media/videos/mission3_video.mp4',
+    ryderSpeech:'Skye is mapping Adventure Bay\'s coastline from above, but sudden winds are changing her altitude every few minutes! She needs to calculate exact flight levels to avoid the mountains!',
+    story:`<strong>The chosen pup</strong> is flying over Adventure Bay when sudden wind gusts
+           send the helicopter soaring up and diving down! Altitude going up = positive, going down = negative.
+           Calculate each altitude change correctly to navigate safely around the mountains!`,
+    questions:5,
+  },
+  {
+    id:3,
+    title:'Mission 4: Rubble\'s Construction Crisis',
+    emoji:'🏗️',
+    defaultPup:'rubble',
+    video:'media/videos/mission4_video.mp4',
+    ryderSpeech:'Mayor Goodway\'s city hall roof is about to collapse! We need to calculate how many support beams to add or remove. Beams above ground are positive, underground ones are negative!',
+    story:`Mayor Goodway's City Hall is in danger of collapsing! <strong>The chosen pup</strong>
+           must calculate the exact number of support beams needed — beams above ground count as
+           positive, underground ones as negative. Do the math to save the building before it's too late!`,
+    questions:5,
+  },
+  {
+    id:4,
+    title:'Mission 5: Rocky\'s Recycling Emergency',
+    emoji:'♻️',
+    defaultPup:'rocky',
+    video:'media/videos/mission5_video.mp4',
+    ryderSpeech:'Mayor Humdinger dumped garbage all over Farmer Yumi\'s farm! Rocky needs to sort recyclables — earning points for items that can be saved, losing points for non-recyclables. Help tally the score!',
+    story:`Mayor Humdinger dumped trash all over Farmer Yumi's beautiful farm!
+           <strong>The chosen pup</strong> must sort recyclables quickly — gaining points for
+           saved items, losing points for items that can't be recycled. Calculate the integer
+           recycling score to clean up the mess!`,
+    questions:5,
+  },
+  {
+    id:5,
+    title:'Mission 6: Zuma\'s Water Rescue',
+    emoji:'🌊',
+    defaultPup:'zuma',
+    video:'media/videos/mission6_video.mp4',
+    ryderSpeech:'Chickaletta fell off Mayor Goodway\'s boat near Seal Island! Zuma must navigate through ocean currents — positive currents push forward, negative currents pull back. Solve the math to reach Chickaletta in time!',
+    story:`Mayor Goodway's beloved chicken Chickaletta has fallen off the boat near Seal Island!
+           <strong>The chosen pup</strong> must navigate the hovercraft through ocean currents —
+           positive currents push forward, negative ones pull back. Solve every current calculation
+           to reach Chickaletta before it's too late!`,
+    questions:5,
+  },
+];
+
+/* ════════════════════════════════════════════════
+   DATA: PUP ROSTER (for selection screen)
+   ════════════════════════════════════════════════ */
+const PUPS = [
+  {id:'chase',    name:'Chase',    emoji:'🐕', img:'media/images/chase.png'},
+  {id:'marshall', name:'Marshall', emoji:'🚒', img:'media/images/marshall.png'},
+  {id:'skye',     name:'Skye',     emoji:'🚁', img:'media/images/skye.png'},
+  {id:'rubble',   name:'Rubble',   emoji:'🏗️',img:'media/images/rubble.png'},
+  {id:'rocky',    name:'Rocky',    emoji:'♻️',img:'media/images/rocky.png'},
+  {id:'zuma',     name:'Zuma',     emoji:'🌊', img:'media/images/zuma.png'},
+];
+
+/* ════════════════════════════════════════════════
+   DATA: QUESTION BANK
+   ════════════════════════════════════════════════ */
+const q=(t,a,c,ctx,h)=>({text:t,answer:a,concept:c,context:ctx,hint:h});
+
+const QBANK = {
+/*
+ * EACH MISSION (m0-m5) has DIFFERENT situations per difficulty level.
+ * Easy   = simple story, small numbers, add/subtract only
+ * Medium = different story scene, larger numbers, all 4 operations
+ * Hard   = advanced story scene, multi-step, combined operations
+ *
+ * Mission themes:
+ *  m0 = Chase    (police dog, traffic, cones, patrol)
+ *  m1 = Marshall (fire/medical, temperature, lighthouse)
+ *  m2 = Skye     (helicopter, altitude, wind, sky)
+ *  m3 = Rubble   (construction, beams, underground, building)
+ *  m4 = Rocky    (recycling, environment, points, eco)
+ *  m5 = Zuma     (water, ocean, currents, hovercraft)
+ */
+
+/* ╔══════════════════════════════════════════════════════╗
+   ║  EASY — Add & Subtract, small numbers −10 to +10   ║
+   ╚══════════════════════════════════════════════════════╝ */
+easy:{
+  m0:[ /* Chase Easy — Kittens knock over cones on the bridge */
+    q("5 + (-3) = ?", 2, "Addition",
+      "Chase placed 5 cones on the left lane. 3 blew into the river. How many cones are left?",
+      "Positive + negative: keep the sign of the bigger number. 5 − 3 = 2."),
+    q("(-4) + 7 = ?", 3, "Addition",
+      "4 cones are missing on the right lane. Chase finds 7 spare cones in his truck. Net cones added?",
+      "7 − 4 = 3. Positive wins because 7 > 4."),
+    q("6 − (-4) = ?", 10, "Subtraction",
+      "Chase has 6 cones and Mayor Goodway removes a fine of −4 cones. Total cones now?",
+      "Subtracting a negative = adding: 6 + 4 = 10."),
+    q("(-2) + (-5) = ?", -7, "Addition",
+      "2 cones fell on the north side, 5 fell on the south side. Total cones fallen (as a loss)?",
+      "Same signs: add and keep negative. −(2+5) = −7."),
+    q("8 − 11 = ?", -3, "Subtraction",
+      "Chase had 8 patrol badges. Humdinger's kittens stole 11 during the chaos. Badge balance?",
+      "8 − 11 goes below zero: answer is −3."),
+  ],
+  m1:[ /* Marshall Easy — Lighthouse generator losing power, medical supplies at risk */
+    q("(-3) + 5 = ?", 2, "Addition",
+      "The lighthouse temperature was 3°C below normal. It rose by 5°C. What is the new change from normal?",
+      "Negative + positive: 5 − 3 = 2. Positive wins."),
+    q("4 + (-7) = ?", -3, "Addition",
+      "Marshall's patient's temperature rose 4°C in the morning but dropped 7°C by evening. Net change?",
+      "4 − 7 = −3. Negative wins because 7 > 4."),
+    q("0 − 6 = ?", -6, "Subtraction",
+      "The medicine storage started at exactly 0°C and the generator failed, dropping it 6°C. Final temp?",
+      "0 − 6 = −6."),
+    q("(-5) + 5 = ?", 0, "Addition",
+      "Temperature fell 5°C overnight but rose exactly 5°C at sunrise. Net temperature change?",
+      "Opposites cancel each other out → 0."),
+    q("(-1) − 4 = ?", -5, "Subtraction",
+      "The supply room was already 1°C below safe level and dropped 4 more degrees. How far below safe?",
+      "−1 − 4 = −5."),
+  ],
+  m2:[ /* Skye Easy — Learning to fly over Adventure Bay, small wind gusts */
+    q("(-2) + (-4) = ?", -6, "Addition",
+      "Skye's helicopter dropped 2 metres in the first wind gust, then 4 metres in the second. Total drop?",
+      "Same signs: add and keep negative. −(2+4) = −6."),
+    q("5 − 8 = ?", -3, "Subtraction",
+      "Skye was flying 5 metres above her planned path. A strong gust pushed her 8 metres below. Position?",
+      "5 − 8 crosses zero: answer is −3."),
+    q("(-6) + 4 = ?", -2, "Addition",
+      "A downdraft dropped Skye 6 metres. She powered up and climbed 4 metres back. Net altitude change?",
+      "6 − 4 = 2; negative wins because 6 > 4. Answer: −2."),
+    q("3 + (-8) = ?", -5, "Addition",
+      "Skye rose 3 metres in a thermal but then a cloud burst pushed her 8 metres down. Net change?",
+      "3 − 8 = −5. Negative wins."),
+    q("(-4) − (-1) = ?", -3, "Subtraction",
+      "Skye is 4 metres below her flight path. A small updraft lifts her 1 metre. New position?",
+      "Subtracting a negative = adding: −4 + 1 = −3."),
+  ],
+  m3:[ /* Rubble Easy — City Hall roof cracking, simple beam counting */
+    q("8 + (-3) = ?", 5, "Addition",
+      "Rubble added 8 roof beams to City Hall but 3 of them cracked and had to be removed. Beams remaining?",
+      "8 − 3 = 5."),
+    q("(-3) − 2 = ?", -5, "Subtraction",
+      "Rubble's digger is already 3 metres underground and digs 2 more metres to reach the foundation. Depth?",
+      "−3 − 2 = −5. Both forces pull deeper underground."),
+    q("2 − 9 = ?", -7, "Subtraction",
+      "Rubble has 2 steel beams in his truck but Mayor Goodway's roof needs 9. How many beams short?",
+      "2 − 9 = −7. The shortfall is 7 beams."),
+    q("(-6) + 4 = ?", -2, "Addition",
+      "The foundation sits 6 metres underground. Rubble raises it 4 metres. New depth below ground?",
+      "6 − 4 = 2; negative wins. Answer: −2."),
+    q("7 − (-3) = ?", 10, "Subtraction",
+      "Rubble found 7 support logs in the shed and 3 more under a tarp. Total support logs?",
+      "Subtracting a negative = adding: 7 + 3 = 10."),
+  ],
+  m4:[ /* Rocky Easy — Farm cleanup, basic recycling point gains and losses */
+    q("(-5) + 5 = ?", 0, "Addition",
+      "Rocky earned 5 eco-points for recycling bottles but lost 5 for broken glass. Net score?",
+      "Opposites cancel each other out → 0."),
+    q("(-1) + (-9) = ?", -10, "Addition",
+      "Rocky lost 1 point for a plastic bag and 9 more for chemical containers. Total points lost?",
+      "Same signs: −(1+9) = −10."),
+    q("(-4) + 9 = ?", 5, "Addition",
+      "Rocky had a penalty of −4 points but earned a 9-point bonus for sorting metals correctly. Final score?",
+      "9 − 4 = 5. Positive wins."),
+    q("6 − (-2) = ?", 8, "Subtraction",
+      "Rocky scored 6 points and the judges cancelled a −2 penalty. New total?",
+      "Subtracting a negative = adding: 6 + 2 = 8."),
+    q("(-6) − (-6) = ?", 0, "Subtraction",
+      "Rocky owes 6 penalty points but earns a 6-point credit for extra cleanup. Final balance?",
+      "−6 − (−6) = −6 + 6 = 0."),
+  ],
+  m5:[ /* Zuma Easy — Chickaletta fell off the boat, basic current drifting */
+    q("(-1) + (-9) = ?", -10, "Addition",
+      "Zuma's hovercraft drifted 1 metre back in the first wave then 9 metres back in the second. Net position?",
+      "Same signs: −(1+9) = −10."),
+    q("6 + (-2) = ?", 4, "Addition",
+      "Zuma powered 6 metres toward Chickaletta but a wave pushed 2 metres back. Net progress?",
+      "6 − 2 = 4."),
+    q("(-4) − (-1) = ?", -3, "Subtraction",
+      "Zuma is 4 metres behind Chickaletta's boat. He hooks a rope that pulls him 1 metre forward. Position?",
+      "−4 − (−1) = −4 + 1 = −3."),
+    q("(-6) + 4 = ?", -2, "Addition",
+      "The tide pulled Zuma 6 metres away from Seal Island. He engines 4 metres back. Net position?",
+      "6 − 4 = 2; negative wins. Answer: −2."),
+    q("3 − 8 = ?", -5, "Subtraction",
+      "Zuma advanced 3 metres forward but a rip current dragged him 8 metres back. Net position?",
+      "3 − 8 = −5."),
+  ],
+},
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║  MEDIUM — All 4 operations, numbers up to ±100, new scenes ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+medium:{
+  m0:[ /* Chase Medium — Directing traffic after a blackout, counting headlights and violations */
+    q("(-12) + 7 = ?", -5, "Addition",
+      "During the blackout, 12 cars drove the wrong way. Chase turned 7 around. Cars still going wrong way?",
+      "12 − 7 = 5; negative wins → −5."),
+    q("15 − (-8) = ?", 23, "Subtraction",
+      "Chase has 15 patrol demerit credits. The mayor cancels 8 of the fines (removes −8). New total credits?",
+      "Subtracting negative = adding: 15 + 8 = 23."),
+    q("(-4) × 6 = ?", -24, "Multiplication",
+      "4 intersections each lost 6 traffic cones in the blackout. Total cones lost across all intersections?",
+      "Opposite signs → negative result: 4 × 6 = 24 → answer −24."),
+    q("(-18) ÷ (-3) = ?", 6, "Division",
+      "A total −18 violation score is split equally among −3 patrol shifts. Score per shift?",
+      "Same signs → positive: 18 ÷ 3 = 6."),
+    q("(-4) × (-5) = ?", 20, "Multiplication",
+      "Chase reversed 4 traffic fines of −5 points each for wrongly ticketed drivers. Total points returned?",
+      "Negative × negative = positive: 4 × 5 = 20."),
+  ],
+  m1:[ /* Marshall Medium — A multi-car accident on the icy mountain road, tracking injured patients */
+    q("(-8) + (-15) = ?", -23, "Addition",
+      "The mountain road dropped 8°C at dusk and another 15°C by midnight. Total temperature drop?",
+      "Same signs: add magnitudes and keep negative. 8+15=23 → −23."),
+    q("3 − (-18) = ?", 21, "Subtraction",
+      "Marshall had 3 emergency medical kits and found 18 more in an abandoned cabin. Total kits?",
+      "Subtracting a negative = adding: 3 + 18 = 21."),
+    q("(-3) × (-8) = ?", 24, "Multiplication",
+      "Marshall's heat packs each reversed a −3°C temperature drop. He used 8 packs. Total degrees recovered?",
+      "Negative × negative = positive: 3 × 8 = 24."),
+    q("(-45) ÷ 9 = ?", -5, "Division",
+      "A total of 45°C was lost across 9 patients equally. Average temperature loss per patient?",
+      "Opposite signs → negative: 45 ÷ 9 = 5 → −5."),
+    q("7 × (-5) = ?", -35, "Multiplication",
+      "7 injured drivers each experienced a 5°C drop in body temperature. Total temp change across all?",
+      "Positive × negative = negative: 7 × 5 = 35 → −35."),
+  ],
+  m2:[ /* Skye Medium — Mapping a volcano site, flying through turbulent ash clouds */
+    q("20 + (-35) = ?", -15, "Addition",
+      "Skye's helicopter rose 20 metres above the volcano rim but ash clouds pushed her 35 metres down. Net?",
+      "35 − 20 = 15; negative wins → −15."),
+    q("(-10) − 14 = ?", -24, "Subtraction",
+      "Skye was already 10 metres below her safe flight path and ash turbulence pushed her 14 more. Total below?",
+      "−10 − 14 = −24."),
+    q("5 × (-7) = ?", -35, "Multiplication",
+      "Skye descends 7 metres each minute for 5 minutes while scanning the volcano. Total altitude change?",
+      "Positive × negative = negative: 5 × 7 = 35 → −35."),
+    q("(-20) ÷ 4 = ?", -5, "Division",
+      "Skye lost a total of 20 metres of altitude split equally over 4 ash cloud passages. Loss per passage?",
+      "Opposite signs → negative: 20 ÷ 4 = 5 → −5."),
+    q("(-14) + (-9) = ?", -23, "Addition",
+      "Skye lost 14 metres in the first ash cloud and 9 more in the second. Total altitude lost?",
+      "Same signs: 14+9=23, keep negative → −23."),
+  ],
+  m3:[ /* Rubble Medium — Collapsed mine shaft, rescuing Cap'n Turbot's research equipment */
+    q("(-7) − (-20) = ?", 13, "Subtraction",
+      "The mine shaft entrance is 7 metres underground. Rubble raises it by removing a 20-metre blocker. Position?",
+      "−7 − (−20) = −7 + 20 = 13."),
+    q("(-9) × 4 = ?", -36, "Multiplication",
+      "Rubble's crane lost 9 metres of cable on each of 4 broken pulleys. Total cable lost?",
+      "Opposite signs → negative: 9 × 4 = 36 → −36."),
+    q("(-56) ÷ (-8) = ?", 7, "Division",
+      "56 tonnes of rubble debris split equally across 8 loader trips (each trip reduces load). Tonnes per trip?",
+      "Same signs → positive: 56 ÷ 8 = 7."),
+    q("(-6) × (-6) = ?", 36, "Multiplication",
+      "Rubble removed 6 boulder obstacles from each of 6 mine tunnels. Total obstacles cleared?",
+      "Negative × negative = positive: 6 × 6 = 36."),
+    q("76 − (-24) = ?", 100, "Subtraction",
+      "Rubble had 76 support planks and found 24 more buried under rubble. Total planks available?",
+      "Subtracting a negative = adding: 76 + 24 = 100."),
+  ],
+  m4:[ /* Rocky Medium — Oil spill cleanup at Jake's mountain, larger scoring system */
+    q("20 + (-35) = ?", -15, "Addition",
+      "Rocky's team earned 20 eco-points for collected oil but lost 35 for wildlife disturbed. Net score?",
+      "35 − 20 = 15; negative wins → −15."),
+    q("(-4) × 6 = ?", -24, "Multiplication",
+      "4 polluted zones each cost Rocky a −6 point penalty. Total penalty across all zones?",
+      "Opposite signs → negative: 4 × 6 = 24 → −24."),
+    q("36 ÷ (-9) = ?", -4, "Division",
+      "A 36-point deduction is split across −9 recycling categories. Points per category?",
+      "Positive ÷ negative = negative: 36 ÷ 9 = 4 → −4."),
+    q("(-3) × (-8) = ?", 24, "Multiplication",
+      "Rocky reversed 8 contamination reports worth −3 points each. Total points recovered?",
+      "Negative × negative = positive: 3 × 8 = 24."),
+    q("(-30) ÷ (-5) = ?", 6, "Division",
+      "A −30 point total loss is reversed equally by −5 cleanup achievements. Points per achievement?",
+      "Same signs → positive: 30 ÷ 5 = 6."),
+  ],
+  m5:[ /* Zuma Medium — Seal Island flooding, navigating against dangerous ocean currents */
+    q("(-7) − (-20) = ?", 13, "Subtraction",
+      "Zuma is 7 metres behind the safe zone marker. He uses a thruster to remove a 20-metre drag anchor. Position?",
+      "−7 − (−20) = −7 + 20 = 13."),
+    q("(-14) + (-9) = ?", -23, "Addition",
+      "The first ocean current pushed Zuma 14 metres off course. The second pushed 9 more. Total off-course?",
+      "Same signs: 14+9=23, keep negative → −23."),
+    q("(-30) ÷ (-5) = ?", 6, "Division",
+      "Zuma lost −30 metres of progress split equally across −5 wave sets. Metres lost per wave set?",
+      "Same signs → positive: 30 ÷ 5 = 6."),
+    q("(-9) × 4 = ?", -36, "Multiplication",
+      "Zuma's rescue rope shortened by 9 metres on each of 4 coral snags. Total rope length lost?",
+      "Opposite signs → negative: 9 × 4 = 36 → −36."),
+    q("(-56) ÷ (-8) = ?", 7, "Division",
+      "Zuma used −56 metres of fuel line split over −8 equal dive attempts. Metres per dive?",
+      "Same signs → positive: 56 ÷ 8 = 7."),
+  ],
+},
+
+/* ╔══════════════════════════════════════════════════════════════════╗
+   ║  HARD — Multi-step problems, large numbers, combined operations ║
+   ║  Completely different dramatic rescue scenes per mission        ║
+   ╚══════════════════════════════════════════════════════════════════╝ */
+hard:{
+  m0:[ /* Chase Hard — High-speed chase, Mayor Humdinger's rocket car loose on the highway */
+    q("(-47) + 89 = ?", 42, "Addition",
+      "Chase lost 47 patrol points chasing the rocket car but gained 89 bonus points for stopping it. Net score?",
+      "89 − 47 = 42. Positive has the larger absolute value."),
+    q("3 × (-7) + 4 × (-2) = ?", -29, "Multi-step",
+      "Chase set up 3 roadblocks losing 7 cones each AND 4 speed traps losing 2 cones each. Total cone loss?",
+      "Step 1: 3×(−7)=−21. Step 2: 4×(−2)=−8. Step 3: −21+(−8)=−29."),
+    q("(-5) × 6 − (-20) = ?", -10, "Multi-step",
+      "5 patrol vehicles each lost 6 fuel units chasing the car, but 20 units were recovered from a depot. Net?",
+      "Step 1: −5×6=−30. Step 2: −30−(−20)=−30+20=−10."),
+    q("16 × (-9) = ?", -144, "Multiplication",
+      "The rocket car triggered 16 automatic fine systems, each deducting 9 patrol points. Total deduction?",
+      "Positive × negative = negative: 16 × 9 = 144 → −144."),
+    q("(-4) × (-5) − 2 × 9 = ?", 2, "Multi-step",
+      "Chase reversed 5 wrong tickets of −4 pts each, but issued 2 new fines of 9 pts each. Net change?",
+      "Step 1: (−4)×(−5)=20. Step 2: 2×9=18. Step 3: 20−18=2."),
+  ],
+  m1:[ /* Marshall Hard — Avalanche on Jake's Mountain, multiple rescues at extreme cold */
+    q("(-63) + (-38) = ?", -101, "Addition",
+      "The avalanche dropped temperature 63°C in zone A and 38°C more in zone B. Total temperature drop?",
+      "Same signs: 63+38=101, keep negative → −101."),
+    q("(-8) × (-3) − 30 = ?", -6, "Multi-step",
+      "Marshall reversed 3 frostbite treatments each recovering −8°C of heat loss, but fever cost 30°C. Net?",
+      "Step 1: −8×−3=+24. Step 2: 24−30=−6."),
+    q("(-7) × (-14) = ?", 98, "Multiplication",
+      "Marshall's heated blankets each reversed a −14°C drop across 7 avalanche victims. Total warmth gained?",
+      "Negative × negative = positive: 7 × 14 = 98."),
+    q("72 ÷ (-8) + (-3) = ?", -12, "Multi-step",
+      "A 72°C total heat loss was split across −8 rescue tents, then dropped 3 more degrees outside. Net?",
+      "Step 1: 72÷(−8)=−9. Step 2: −9+(−3)=−12."),
+    q("(-88) + 45 + (-12) = ?", -55, "Multi-step",
+      "Marshall: started −88°C below safe, gained 45°C from rescue heaters, lost 12°C to storm winds. Final?",
+      "Step 1: −88+45=−43. Step 2: −43+(−12)=−55."),
+  ],
+  m2:[ /* Skye Hard — Emergency airdrop during a hurricane, tracking precise flight coordinates */
+    q("(-100) − (-55) = ?", -45, "Subtraction",
+      "Skye was 100 metres below her emergency flight path. She activated turbo and rose 55 metres. Position?",
+      "−100 − (−55) = −100 + 55 = −45."),
+    q("(-15) × 8 = ?", -120, "Multiplication",
+      "Skye had to descend 15 metres per airdrop across 8 storm zones. Total altitude change for all drops?",
+      "Opposite signs → negative: 15 × 8 = 120 → −120."),
+    q("(-9) × 4 + 50 = ?", 14, "Multi-step",
+      "Skye lost 9 metres per minute for 4 minutes in the eye of the hurricane, then a thermal lifted her 50 m. Net?",
+      "Step 1: −9×4=−36. Step 2: −36+50=14."),
+    q("100 ÷ (-5) + 8 = ?", -12, "Multi-step",
+      "Skye divided a 100-metre emergency descent across −5 gust zones and then climbed 8 metres on exit. Net?",
+      "Step 1: 100÷(−5)=−20. Step 2: −20+8=−12."),
+    q("(-3) × (-4) × (-2) = ?", -24, "Multi-step",
+      "Skye reversed 4 altitude drops of 3 m each but the hurricane's eye wall reversed ALL her gains again. Net?",
+      "Step 1: (−3)×(−4)=12. Step 2: 12×(−2)=−24."),
+  ],
+  m3:[ /* Rubble Hard — Underwater tunnel collapse, rescuing trapped sub equipment */
+    q("(-13) × 9 = ?", -117, "Multiplication",
+      "The underwater tunnel had 9 sections. Each section lost 13 metres of structural integrity. Total loss?",
+      "Opposite signs → negative: 13 × 9 = 117 → −117."),
+    q("(-6) × (-6) − 40 = ?", -4, "Multi-step",
+      "Rubble cleared 6 blockages in 6 tunnels (each a gain) but a final cave-in cost 40 metres. Net result?",
+      "Step 1: (−6)×(−6)=36. Step 2: 36−40=−4."),
+    q("(-5)² − 30 = ?", -5, "Multi-step",
+      "Rubble calculated the squared area of a 5-metre error wall (always positive), then lost 30 m² to flooding. Net?",
+      "Step 1: (−5)²=25 (squaring always gives positive). Step 2: 25−30=−5."),
+    q("(-196) ÷ (-14) = ?", 14, "Division",
+      "−196 metres of collapsed tunnel divided equally across −14 demolition crews. Metres per crew?",
+      "Same signs → positive: 196 ÷ 14 = 14."),
+    q("(-4) × (-5) − 2 × 9 = ?", 2, "Multi-step",
+      "Rubble reversed 5 structural failures of −4 m each but 2 new collapses of 9 m each occurred. Net change?",
+      "Step 1: (−4)×(−5)=20. Step 2: 2×9=18. Step 3: 20−18=2."),
+  ],
+  m4:[ /* Rocky Hard — Toxic waste spill at the lake, complex environmental scoring */
+    q("(-12) × (-11) = ?", 132, "Multiplication",
+      "Rocky reversed 11 chemical spill penalties of −12 eco-points each. Total eco-points recovered?",
+      "Negative × negative = positive: 12 × 11 = 132."),
+    q("3 × (-4) + 10 = ?", -2, "Multi-step",
+      "3 contaminated zones each cost −4 eco-points, but Rocky found a rare plant worth +10 points. Net score?",
+      "Step 1: 3×(−4)=−12. Step 2: −12+10=−2."),
+    q("(-225) ÷ 15 = ?", -15, "Division",
+      "A total −225 eco-point penalty is divided equally across 15 polluted lake sections. Points per section?",
+      "Opposite signs → negative: 225 ÷ 15 = 15 → −15."),
+    q("3 × (-7) + 4 × (-2) = ?", -29, "Multi-step",
+      "3 oil drums leaked 7 eco-points each AND 4 chemical barrels cost 2 eco-points each. Total eco-point loss?",
+      "Step 1: 3×(−7)=−21. Step 2: 4×(−2)=−8. Step 3: −21+(−8)=−29."),
+    q("(-88) + 45 + (-12) = ?", -55, "Multi-step",
+      "Rocky started with a −88 eco-debt, earned +45 for clean water samples, lost −12 for dead fish count. Final?",
+      "Step 1: −88+45=−43. Step 2: −43+(−12)=−55."),
+  ],
+  m5:[ /* Zuma Hard — Whale trapped in a submarine net near deep water canyon */
+    q("(-47) + 89 = ?", 42, "Addition",
+      "Zuma's sub lost −47 metres of cable to the net but a winch recovered 89 metres. Net cable remaining?",
+      "89 − 47 = 42. Positive wins."),
+    q("(-9) × 4 + 50 = ?", 14, "Multi-step",
+      "Zuma's hovercraft lost 9 metres of depth for 4 minutes of strong current, then a wave lifted it 50 m. Net?",
+      "Step 1: −9×4=−36. Step 2: −36+50=14."),
+    q("(-144) ÷ 12 = ?", -12, "Division",
+      "The underwater net had a total −144 metres of tangled rope split across 12 equal sections. Per section?",
+      "Opposite signs → negative: 144 ÷ 12 = 12 → −12."),
+    q("(-3) × (-4) × (-2) = ?", -24, "Multi-step",
+      "Zuma reversed 4 current drifts of 3 m each, then the canyon whirlpool reversed all his progress. Net?",
+      "Step 1: (−3)×(−4)=12. Step 2: 12×(−2)=−24."),
+    q("72 ÷ (-8) + (-3) = ?", -12, "Multi-step",
+      "Zuma used 72 metres of rescue rope split across −8 dive zones, then drifted 3 more metres back. Net?",
+      "Step 1: 72÷(−8)=−9. Step 2: −9+(−3)=−12."),
+  ],
+},
+};
+
+/* ════════════════════════════════════════════════
+   GAME STATE
+   ════════════════════════════════════════════════ */
+const G={
+  diff:'easy',
+  mIdx:0, lives:3, score:0,
+  pool:[], qIdx:0, qTotal:5,
+  correctMission:0, answered:false,
+  pawStates:[],
+  chosenPup:null,
+  usedPups:[],       // track which pups led missions for victory screen
+  musicOn:false,
+};
+
+/* ════════════════════════════════════════════════
+   BEST SCORES — stored in localStorage
+   ════════════════════════════════════════════════ */
+function getBest(){
+  try{ return JSON.parse(localStorage.getItem('pawBestScores')||'{}'); }catch{return{};}
+}
+function saveBest(diff,score){
+  const b=getBest();
+  if(!b[diff]||score>b[diff]){
+    b[diff]=score;
+    try{localStorage.setItem('pawBestScores',JSON.stringify(b));}catch{}
+    return true; // new best
+  }
+  return false;
+}
+function refreshBestBanner(){
+  const b=getBest();
+  let topScore=0, topDiff='—';
+  ['easy','medium','hard'].forEach(d=>{
+    if(b[d]&&b[d]>topScore){topScore=b[d];topDiff=d.charAt(0).toUpperCase()+d.slice(1);}
+  });
+  document.getElementById('bestScoreVal').textContent=topScore;
+  document.getElementById('bestScoreDiff').textContent=topDiff;
+}
+function showBestScores(){
+  const b=getBest();
+  const el=document.getElementById('scoresList');
+  const diffs=['easy','medium','hard'];
+  const colors={easy:'#43A047',medium:'#FF8F00',hard:'#E53935'};
+  el.innerHTML=diffs.map(d=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;
+      padding:10px 12px;margin-bottom:8px;border-radius:12px;
+      background:${d==='easy'?'#E8F5E9':d==='medium'?'#FFF8E1':'#FFEBEE'};
+      border:2px solid ${colors[d]}">
+      <span style="font-family:Fredoka One,cursive;color:${colors[d]};font-size:1rem">
+        ${d==='easy'?'🟢 Easy':d==='medium'?'🟡 Medium':'🔴 Hard'}
+      </span>
+      <span style="font-family:Fredoka One,cursive;font-size:1.4rem;color:${colors[d]}">
+        ${b[d]||0} pts
+      </span>
+    </div>`).join('');
+  document.getElementById('scoresOverlay').classList.add('open');
+}
+function clearBestScores(){
+  if(confirm('Clear all best scores?')){
+    try{localStorage.removeItem('pawBestScores');}catch{}
+    refreshBestBanner();
+    showBestScores();
+  }
+}
+function closeScores(){document.getElementById('scoresOverlay').classList.remove('open')}
+function maybeCloseScores(e){if(e.target.id==='scoresOverlay')closeScores()}
+
+/* ════════════════════════════════════════════════
+   SCREEN NAVIGATION
+   ════════════════════════════════════════════════ */
+function goScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='scrMenu'){
+    refreshBestBanner();
+    stopMissionSounds();
+    setTimeout(()=>startBgMusic(), 300); // restart bg music on menu
+  }
+}
+
+/* ════════════════════════════════════════════════
+   AUDIO
+   ════════════════════════════════════════════════ */
+function playSound(id){
+  try{const a=document.getElementById(id);if(!a)return;a.currentTime=0;a.play().catch(()=>{})}catch{}
+}
+/* ── MUSIC CONTROL ── */
+function startBgMusic(){
+  const bg=document.getElementById('bgMusic');
+  if(!bg||G.musicOn) return;
+  bg.volume=0.45;
+  bg.play().then(()=>{
+    G.musicOn=true;
+    document.getElementById('musicBtn').textContent='🔊';
+  }).catch(()=>{});
+}
+
+function stopBgMusic(){
+  const bg=document.getElementById('bgMusic');
+  if(!bg) return;
+  bg.pause();
+  bg.currentTime=0;
+  G.musicOn=false;
+  document.getElementById('musicBtn').textContent='🎵';
+}
+
+function toggleMusic(){
+  if(G.musicOn){ stopBgMusic(); }
+  else { startBgMusic(); }
+}
+
+function stopAllSounds(){
+  stopBgMusic();
+  ['sndOk','sndErr','sndWin','sndOver'].forEach(id=>{
+    try{const a=document.getElementById(id);a.pause();a.currentTime=0;}catch(e){}
+  });
+}
+
+function stopMissionSounds(){
+  // Stop one-shot sounds only — bg music handled separately
+  ['sndOk','sndErr','sndWin','sndOver'].forEach(id=>{
+    try{const a=document.getElementById(id);a.pause();a.currentTime=0;}catch(e){}
+  });
+  // Stop mission video
+  try{const v=document.getElementById('mVideo');if(v){v.pause();v.currentTime=0;}}catch(e){}
+}
+
+function startMissionMusic(){
+  // Stop bg music when mission begins, play mission sounds instead
+  stopBgMusic();
+}
+
+function returnToMenuMusic(){
+  // Stop all mission sounds, restart bg music on menu
+  stopMissionSounds();
+  stopBgMusic();
+}
+
+/* ════════════════════════════════════════════════
+   DIFFICULTY
+   ════════════════════════════════════════════════ */
+function pickDiff(d){
+  G.diff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('sel'));
+  document.querySelector(`.diff-btn[data-d="${d}"]`).classList.add('sel');
+}
+
+/* ════════════════════════════════════════════════
+   BUILD CHARACTERS GRID
+   ════════════════════════════════════════════════ */
+function buildCharGrid(){
+  const grid=document.getElementById('charGrid');
+  grid.innerHTML=CHARACTERS.map(c=>`
+    <div class="char-card ${c.css}">
+      <img class="cc-img" src="${c.img}" alt="${c.name}"
+           onerror="this.outerHTML='<span class=cc-emoji>${c.emoji}</span>'"/>
+      <div class="cc-name" style="color:${
+        c.css==='chase'?'#1976D2':c.css==='marshall'?'#E53935':
+        c.css==='skye'?'#E91E63':c.css==='rubble'?'#FF8F00':
+        c.css==='rocky'?'#43A047':c.css==='zuma'?'#00838F':
+        c.css==='ryder'?'#7B1FA2':'#546E7A'}">${c.name}</div>
+      <div class="cc-role">${c.role}</div>
+      <div class="cc-desc">${c.desc}</div>
+    </div>`).join('');
+}
+
+/* ════════════════════════════════════════════════
+   START GAME FLOW
+   ════════════════════════════════════════════════ */
+function startGame(){
+  G.mIdx=0; G.lives=3; G.score=0; G.usedPups=[];
+  startBgMusic(); // start background music when game begins
+  showPupSelect();
+}
+function restartGame(){
+  G.mIdx=0; G.lives=3; G.score=0; G.usedPups=[];
+  startBgMusic();
+  showPupSelect();
+}
+function quitToMenu(){
+  if(confirm('Quit this mission and return to the main menu?')){
+    returnToMenuMusic();
+    setTimeout(()=>startBgMusic(), 300); // restart bg music on menu
+    goScreen('scrMenu');
+  }
+}
+
+/* ════════════════════════════════════════════════
+   PUP SELECTION SCREEN
+   ════════════════════════════════════════════════ */
+function showPupSelect(){
+  const m=MISSIONS[G.mIdx];
+  G.chosenPup=null;
+
+  // Ryder speech
+  document.getElementById('pickScreenTitle').textContent='Mission '+(G.mIdx+1)+': Choose Your Pup';
+  document.getElementById('riderMissionName').textContent='🚨 '+m.title;
+  document.getElementById('riderSpeech').textContent=m.ryderSpeech;
+
+  // Build pup pick grid
+  const grid=document.getElementById('pupPickGrid');
+  grid.innerHTML=PUPS.map(p=>`
+    <div class="pup-pick-card" id="ppcard-${p.id}" onclick="selectPup('${p.id}')">
+      <img src="${p.img}" alt="${p.name}"
+           onerror="this.outerHTML='<span class=pp-emoji>${p.emoji}</span>'"/>
+      <div class="pp-name">${p.name}</div>
+    </div>`).join('');
+
+  document.getElementById('chosenLabel').textContent='— No pup selected yet —';
+  const btn=document.getElementById('confirmPupBtn');
+  btn.disabled=true; btn.style.opacity='.5'; btn.style.cursor='not-allowed';
+
+  goScreen('scrPupSelect');
+}
+
+function selectPup(id){
+  G.chosenPup=id;
+  document.querySelectorAll('.pup-pick-card').forEach(c=>c.classList.remove('chosen'));
+  document.getElementById('ppcard-'+id).classList.add('chosen');
+  const p=PUPS.find(p=>p.id===id);
+  document.getElementById('chosenLabel').textContent=`✅ ${p.name} will lead this mission!`;
+  const btn=document.getElementById('confirmPupBtn');
+  btn.disabled=false; btn.style.opacity='1'; btn.style.cursor='pointer';
+}
+
+function confirmPup(){
+  if(!G.chosenPup) return;
+  G.usedPups.push(G.chosenPup);
+  showMissionIntro();
+}
+
+/* ════════════════════════════════════════════════
+   MISSION INTRO SCREEN
+   ════════════════════════════════════════════════ */
+function showMissionIntro(){
+  const m=MISSIONS[G.mIdx];
+  const pup=PUPS.find(p=>p.id===G.chosenPup)||PUPS[0];
+
+  document.getElementById('missionBackTitle').textContent=m.title;
+  document.getElementById('mTitle').textContent=m.title;
+  document.getElementById('mSub').textContent='Led by: '+pup.name;
+  document.getElementById('mStory').innerHTML=m.story;
+  document.getElementById('mQCount').textContent=m.questions;
+
+  // pup image
+  const pImg=document.getElementById('mPupImg');
+  const pEm =document.getElementById('mPupEmoji');
+  pImg.src=pup.img; pImg.style.display='block';
+  pEm.style.display='none'; pEm.textContent=pup.emoji;
+
+  // mission video
+  const vWrap=document.getElementById('mVideoWrap');
+  const vEl  =document.getElementById('mVideo');
+  const vSrc =document.getElementById('mVideoSrc');
+  vSrc.src=m.video; vWrap.classList.remove('vis');
+  vEl.load();
+  vEl.oncanplay =()=>vWrap.classList.add('vis');
+  vEl.onerror   =()=>vWrap.classList.remove('vis');
+
+  goScreen('scrMission');
+}
+
+/* ════════════════════════════════════════════════
+   BEGIN MISSION — shuffle pool
+   ════════════════════════════════════════════════ */
+function beginMission(){
+  startMissionMusic(); // stop bg music during mission
+  const m=MISSIONS[G.mIdx];
+  G.qTotal=m.questions;
+  G.qIdx=0; G.correctMission=0;
+  G.pawStates=new Array(G.qTotal).fill('upcoming');
+
+  // Pull questions for THIS specific mission (m0–m5) and difficulty
+  const missionKey = 'm' + G.mIdx;
+  const missionPool = QBANK[G.diff][missionKey];
+
+  if(!missionPool || missionPool.length === 0){
+    console.warn('No questions found for', G.diff, missionKey);
+    return;
+  }
+
+  // Shuffle the mission-specific pool
+  const pool = [...missionPool];
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  G.pool = pool.slice(0, G.qTotal);
+
+  buildPawTrack();
+  showQuestion();
+  goScreen('scrQuestion');
+}
+
+/* ════════════════════════════════════════════════
+   PAW TRACK
+   ════════════════════════════════════════════════ */
+function buildPawTrack(){
+  const t=document.getElementById('pawTrack');
+  t.innerHTML='';
+  G.pawStates.forEach((st,i)=>{
+    const d=document.createElement('div');
+    d.className='paw-dot'+(st==='ok'?' ok':st==='cur'?' cur':st==='err'?' err':'');
+    d.id='pd-'+i;
+    d.textContent=st==='ok'?'✓':st==='err'?'✗':i+1;
+    t.appendChild(d);
+  });
+}
+function updatePawDot(i,st){
+  G.pawStates[i]=st;
+  const d=document.getElementById('pd-'+i);
+  if(!d)return;
+  d.className='paw-dot'+(st==='ok'?' ok':st==='cur'?' cur':st==='err'?' err':'');
+  d.textContent=st==='ok'?'✓':st==='err'?'✗':i+1;
+}
+
+/* ════════════════════════════════════════════════
+   SHOW QUESTION
+   ════════════════════════════════════════════════ */
+function showQuestion(){
+  const qo=G.pool[G.qIdx];
+  const pup=PUPS.find(p=>p.id===G.chosenPup)||PUPS[0];
+  G.answered=false;
+
+  updatePawDot(G.qIdx,'cur');
+
+  document.getElementById('qScreenTitle').textContent=MISSIONS[G.mIdx].title;
+  document.getElementById('conceptChip').textContent=qo.concept.toUpperCase();
+  document.getElementById('qContext').textContent=qo.context;
+  document.getElementById('qText').textContent=qo.text;
+  document.getElementById('qNum').textContent=G.qIdx+1;
+  document.getElementById('qTot').textContent=G.qTotal;
+  document.getElementById('scoreDisp').textContent=G.score;
+  updateLives();
+
+  // pup in question
+  const qi=document.getElementById('qPupImg');
+  const qe=document.getElementById('qPupEmoji');
+  qi.src=pup.img; qi.style.display='inline';
+  qe.style.display='none'; qe.textContent=pup.emoji;
+
+  // reset UI
+  const inp=document.getElementById('ansInput');
+  inp.value=''; inp.className='ans-input'; inp.disabled=false;
+  setTimeout(()=>inp.focus(),80);
+
+  document.getElementById('feedback').className='feedback hide';
+  document.getElementById('hintBox').className='hint-box';
+  document.getElementById('starPop').className='star-pop';
+  document.getElementById('nextWrap').style.display='none';
+}
+
+/* ════════════════════════════════════════════════
+   LIVES DISPLAY
+   ════════════════════════════════════════════════ */
+function updateLives(){
+  document.getElementById('livesDisp').textContent=
+    '❤️'.repeat(G.lives)+'🖤'.repeat(3-G.lives);
+}
+
+/* ════════════════════════════════════════════════
+   CHECK ANSWER
+   ════════════════════════════════════════════════ */
+function checkAnswer(){
+  const inp=document.getElementById('ansInput');
+  const raw=inp.value.trim();
+  if(raw===''){setFb('info','✏️ Type your answer first!');return;}
+  if(G.answered)return;
+  G.answered=true; inp.disabled=true;
+
+  const pa=parseInt(raw,10);
+  const ca=G.pool[G.qIdx].answer;
+
+  if(pa===ca){
+    inp.classList.add('ok');
+    const pts=G.diff==='easy'?10:G.diff==='medium'?20:35;
+    G.score+=pts; G.correctMission++;
+    document.getElementById('scoreDisp').textContent=G.score;
+    document.getElementById('starPop').className='star-pop on';
+    updatePawDot(G.qIdx,'ok');
+    setFb('ok',`✅ Correct! +${pts} points! Great work!`);
+    playSound('sndOk');
+    document.getElementById('nextWrap').style.display='block';
+  } else {
+    inp.classList.add('err');
+    G.lives--;
+    updatePawDot(G.qIdx,'err');
+    updateLives();
+    document.getElementById('hintBox').className='hint-box on';
+    document.getElementById('hintBox').textContent='💡 Hint: '+G.pool[G.qIdx].hint;
+    playSound('sndErr');
+    if(G.lives<=0){
+      setFb('err',`❌ Wrong! Answer: ${ca}. Oh no — out of lives!`);
+      setTimeout(()=>doGameOver(),1900);
+    } else {
+      setFb('err',`❌ Not quite! ${G.lives} ❤️ left.`);
+      document.getElementById('nextWrap').style.display='block';
+    }
+  }
+}
+
+function setFb(type,msg){
+  const fb=document.getElementById('feedback');
+  fb.textContent=msg; fb.className='feedback '+type;
+}
+
+/* ════════════════════════════════════════════════
+   NEXT QUESTION
+   ════════════════════════════════════════════════ */
+function nextQ(){
+  if(G.lives<=0){doGameOver();return;}
+  G.qIdx++;
+  if(G.qIdx>=G.qTotal) showMissionResult();
+  else showQuestion();
+}
+
+/* ════════════════════════════════════════════════
+   MISSION RESULT
+   ════════════════════════════════════════════════ */
+function showMissionResult(){
+  const ok=G.correctMission>=Math.ceil(G.qTotal/2);
+  const isNewBest=saveBest(G.diff,G.score);
+
+  document.getElementById('resIcon').textContent  =ok?'🎉':'😢';
+  document.getElementById('resCorr').textContent  =`${G.correctMission}/${G.qTotal}`;
+  document.getElementById('resScore').textContent =G.score;
+  document.getElementById('resLives').textContent =G.lives;
+
+  const nb=document.getElementById('newBestBanner');
+  nb.className=isNewBest?'new-best on':'new-best';
+
+  const btns=document.getElementById('resBtns');
+  btns.innerHTML='';
+
+  if(ok){
+    document.getElementById('resTitle').textContent='🏆 Mission Complete!';
+    document.getElementById('resTitle').className='res-title win';
+    const pup=PUPS.find(p=>p.id===G.chosenPup)||PUPS[0];
+    document.getElementById('resSub').textContent=`${pup.name} saved the day! Adventure Bay thanks you!`;
+    playSound('sndWin');
+
+    if(G.mIdx>=MISSIONS.length-1){
+      btns.innerHTML=`<button class="btn btn-yellow" onclick="showVictory()">🏅 See Final Score!</button>`;
+    } else {
+      btns.innerHTML=`
+        <button class="btn btn-green" onclick="nextMission()">➡ Next Mission</button>
+        <button class="btn btn-outline" onclick="goScreen('scrMenu')">🏠 Main Menu</button>`;
+    }
+  } else {
+    document.getElementById('resTitle').textContent='😔 Mission Failed…';
+    document.getElementById('resTitle').className='res-title lose';
+    document.getElementById('resSub').textContent=`Only ${G.correctMission}/${G.qTotal} correct. Don't give up!`;
+    btns.innerHTML=`
+      <button class="btn btn-yellow" onclick="retryMission()">🔄 Retry Mission</button>
+      <button class="btn btn-outline" onclick="goScreen('scrMenu')">🏠 Main Menu</button>`;
+  }
+  refreshBestBanner();
+  goScreen('scrResult');
+}
+
+function nextMission(){
+  stopMissionSounds();
+  G.mIdx++;
+  startBgMusic(); // play bg music during pup select between missions
+  showPupSelect();
+}
+function retryMission(){
+  stopMissionSounds();
+  beginMission();
+  goScreen('scrQuestion');
+}
+
+/* ════════════════════════════════════════════════
+   GAME OVER
+   ════════════════════════════════════════════════ */
+function doGameOver(){
+  stopMissionSounds();
+  document.getElementById('goScore').textContent=G.score;
+  saveBest(G.diff,G.score);
+  refreshBestBanner();
+  setTimeout(()=>playSound('sndOver'),300);
+  goScreen('scrGameOver');
+}
+
+/* ════════════════════════════════════════════════
+   VICTORY
+   ════════════════════════════════════════════════ */
+function showVictory(){
+  stopMissionSounds();
+  const isNewBest=saveBest(G.diff,G.score);
+  document.getElementById('vScore').textContent   =G.score;
+  document.getElementById('vDiff').textContent    =G.diff.charAt(0).toUpperCase()+G.diff.slice(1);
+  document.getElementById('vMissions').textContent=`${MISSIONS.length} / ${MISSIONS.length}`;
+
+  // Pups used
+  const pupNames=G.usedPups.map(id=>{
+    const p=PUPS.find(p=>p.id===id);
+    return p?p.emoji+' '+p.name:'?';
+  }).join(', ');
+  document.getElementById('vPups').textContent=pupNames||'—';
+
+  const vnb=document.getElementById('victoryNewBest');
+  vnb.className=isNewBest?'new-best on':'new-best';
+
+  refreshBestBanner();
+  playSound('sndWin');
+  goScreen('scrVictory');
+}
+
+/* ════════════════════════════════════════════════
+   MODAL — HOW TO PLAY
+   ════════════════════════════════════════════════ */
+function openHelp(){document.getElementById('helpOverlay').classList.add('open')}
+function closeHelp(){document.getElementById('helpOverlay').classList.remove('open')}
+function maybeCloseHelp(e){if(e.target.id==='helpOverlay')closeHelp()}
+
+/* ════════════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded',()=>{
+  // Force the menu screen visible on every load
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('scrMenu').classList.add('active');
+  buildCharGrid();
+  refreshBestBanner();
+
+  // ── AUTO MUSIC: unlock audio on first user interaction ──
+  // The intro video handles sound. After it ends, bg music auto-starts.
+  // As a backup, unlock all audio on first click anywhere on page.
+  let audioUnlocked = false;
+  const unlockAudio = () => {
+    if(audioUnlocked) return;
+    audioUnlocked = true;
+    document.querySelectorAll('audio').forEach(a => {
+      a.play().then(()=>{ a.pause(); a.currentTime=0; }).catch(()=>{});
+    });
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchstart', unlockAudio);
+  };
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchstart', unlockAudio);
+
+  // ── INTRO VIDEO LOGIC ──
+  const overlay   = document.getElementById('introOverlay');
+  const video     = document.getElementById('introVideo');
+  const loading   = document.getElementById('introLoading');
+  const soundBtn  = document.getElementById('soundUnlockBtn');
+
+  // Hide loading text once video is ready
+  video.addEventListener('canplay', ()=>{
+    loading.style.display = 'none';
+  });
+
+  // Try to play WITH sound first
+  video.play().then(()=>{
+    // ✅ Autoplay with sound worked!
+    if(soundBtn) soundBtn.style.display = 'none';
+  }).catch(()=>{
+    // ❌ Browser blocked autoplay with sound
+    // Try muted autoplay as fallback
+    video.muted = true;
+    video.play().then(()=>{
+      // Muted autoplay worked — show button to enable sound
+      if(soundBtn) soundBtn.style.display = 'block';
+    }).catch(()=>{
+      // Even muted failed — skip intro entirely
+      skipIntro();
+    });
+  });
+
+  // When video ends naturally, transition to game with bg music
+  video.addEventListener('ended', ()=>{
+    skipIntro();
+  });
+
+  // If video file is missing or broken, skip intro
+  video.addEventListener('error', ()=>{
+    skipIntro();
+  });
+
+  // If video does not start loading within 1.5 seconds, skip
+  setTimeout(()=>{
+    if(video.readyState === 0){
+      skipIntro();
+    }
+  }, 1500);
+});
+
+// Unlock intro sound when user taps the sound button
+function unlockIntroSound(){
+  const video    = document.getElementById('introVideo');
+  const soundBtn = document.getElementById('soundUnlockBtn');
+  if(video){
+    video.muted = false;
+    video.currentTime = 0; // restart from beginning with sound
+    video.play().catch(()=>{});
+  }
+  if(soundBtn) soundBtn.style.display = 'none';
+}
+
+// Skip intro and show the game — start bg music after
+function skipIntro(){
+  const overlay = document.getElementById('introOverlay');
+  const video   = document.getElementById('introVideo');
+  if(overlay){
+    video.pause();
+    video.currentTime = 0;
+    overlay.classList.add('hidden');
+  }
+  // Start background menu music after intro ends or is skipped
+  setTimeout(()=>{ startBgMusic(); }, 200);
+}
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════╗
+║   HOW TO RUN IN VISUAL STUDIO CODE — COMPLETE GUIDE             ║
+╠══════════════════════════════════════════════════════════════════╣
+║                                                                  ║
+║  STEP 1 — CREATE YOUR GAME FOLDER                               ║
+║  Create a folder anywhere: e.g. "paw_patrol_game" on Desktop    ║
+║                                                                  ║
+║  STEP 2 — SAVE THIS FILE                                         ║
+║  Save as: paw_patrol_math_rescue_v3.html inside the folder      ║
+║                                                                  ║
+║  STEP 3 — CREATE MEDIA SUBFOLDERS (optional but recommended)    ║
+║  paw_patrol_game/                                                ║
+║    ├── paw_patrol_math_rescue_v3.html                           ║
+║    └── media/                                                    ║
+║          ├── images/   ← PNG character images                   ║
+║          ├── music/    ← MP3 sound files                        ║
+║          └── videos/   ← MP4 mission clips                      ║
+║                                                                  ║
+║  STEP 4 — IMAGE FILES (save to media/images/)                   ║
+║  logo.png, ryder.png, chase.png, marshall.png, skye.png,        ║
+║  rubble.png, rocky.png, zuma.png, humdinger.png,                ║
+║  goodway.png, turbot.png, correct_star.png,                     ║
+║  bg_adventure_bay.jpg (background photo)                        ║
+║                                                                  ║
+║  STEP 5 — MUSIC FILES (save to media/music/ as .mp3)            ║
+║  theme_song.mp3, correct_answer.mp3, wrong_answer.mp3,          ║
+║  mission_complete.mp3, game_over.mp3                            ║
+║                                                                  ║
+║  STEP 6 — VIDEO FILES (save to media/videos/ as .mp4)           ║
+║  mission1_video.mp4 through mission6_video.mp4 (optional)       ║
+║                                                                  ║
+║  STEP 7 — OPEN IN VS CODE                                        ║
+║  File → Open Folder → select paw_patrol_game/                   ║
+║                                                                  ║
+║  STEP 8 — INSTALL LIVE SERVER EXTENSION                         ║
+║  Click Extensions (squares icon) → Search "Live Server"         ║
+║  → Install by Ritwick Dey                                        ║
+║                                                                  ║
+║  STEP 9 — LAUNCH                                                 ║
+║  Right-click HTML file → "Open with Live Server"                ║
+║  OR: Double-click the HTML file in File Explorer / Finder       ║
+║                                                                  ║
+║  STEP 10 — ENABLE MUSIC                                          ║
+║  Click the 🎵 button in the header (browsers block autoplay)    ║
+║                                                                  ║
+║  NOTES:                                                          ║
+║  • All media is OPTIONAL — emojis show if files are missing     ║
+║  • File names are case-sensitive: chase.png not Chase.PNG       ║
+║  • Best scores are saved in browser localStorage                ║
+║  • Use Chrome or Edge for best performance                       ║
+╚══════════════════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
